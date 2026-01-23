@@ -1,33 +1,118 @@
-# Welcome to your Expo app 👋
+# iGyan Educational App 📚
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile application for the **iGyan** educational platform built with Expo.
 
-## Get started
+## 📁 Project Structure
 
-1. Install dependencies
+```
+igyan-app/
+├── app/                    # Expo Router screens
+│   ├── _layout.js          # Root layout
+│   ├── login.js            # Login modal
+│   ├── signup.js           # Signup modal
+│   ├── settings.js         # Settings screen
+│   ├── (tabs)/             # Tab navigation
+│   │   ├── _layout.js      # Tab layout
+│   │   ├── home.js         # Home tab
+│   │   ├── courses.js      # Courses tab
+│   │   ├── explore.js      # Explore tab
+│   │   └── profile.js      # Profile tab
+│   ├── course/             # Course screens
+│   │   └── [id].js         # Course detail
+│   └── lesson/             # Lesson screens
+│       └── [id].js         # Lesson player
+├── pages/                  # Page components
+│   ├── home/
+│   │   └── HomePage.js
+│   ├── courses/
+│   │   └── CoursesPage.js
+│   ├── explore/
+│   │   └── ExplorePage.js
+│   └── profile/
+│       └── ProfilePage.js
+├── styles/                 # Style files
+│   ├── globalStyles.js     # Global/common styles
+│   └── pages/              # Page-specific styles
+│       ├── homeStyles.js
+│       ├── coursesStyles.js
+│       ├── exploreStyles.js
+│       └── profileStyles.js
+├── components/             # Reusable components
+│   ├── ThemedText.js
+│   ├── ThemedView.js
+│   ├── IconSymbol.js
+│   └── HapticTab.js
+├── hooks/                  # Custom hooks
+│   ├── useColorScheme.js
+│   └── useThemeColor.js
+├── navigation/             # Navigation config
+│   └── config.js
+├── constants/              # App constants
+│   └── theme.js            # Colors, fonts, spacing
+└── assets/                 # Images, fonts, etc.
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or newer)
+- npm or yarn
+- Expo CLI
+- Expo Go app (for testing on device)
+
+### Installation
+
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Start the development server:
 
    ```bash
-   npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+3. Run on specific platform:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```bash
+   npm run android    # Android
+   npm run ios        # iOS
+   npm run web        # Web
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 📱 Features
 
-## Get a fresh project
+- **Home Screen**: Welcome section, featured courses, learning stats
+- **Courses**: Browse, search, and filter courses by category
+- **Explore**: Discover trending courses, categories, and instructors
+- **Profile**: User profile, achievements, and settings
+- **Course Detail**: Full course information with lessons list
+- **Lesson Player**: Video player with navigation controls
+- **Authentication**: Login and signup screens
 
-When you're ready, run:
+## 🎨 Theme
+
+The app uses iGyan brand colors:
+- **Primary**: #1E88E5 (Blue - knowledge & trust)
+- **Secondary**: #43A047 (Green - growth & learning)
+- **Accent**: #FF9800 (Orange - energy & enthusiasm)
+
+Supports both light and dark modes automatically.
+
+## 📦 Key Dependencies
+
+- `expo` - Expo SDK
+- `expo-router` - File-based routing
+- `react-native` - React Native framework
+- `@react-navigation/native` - Navigation
+- `expo-haptics` - Haptic feedback
+
+## 📄 License
+
+Copyright © 2026 iGyan Educational Company
 
 ```bash
 npm run reset-project
