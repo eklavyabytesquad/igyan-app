@@ -1,205 +1,249 @@
 /**
- * iGyan App - Auth Options Screen
- * Screen showing login and register options
+ * iGyan App - Portal Selection Screen
+ * Choose between Institutional Suite and Professional Suite
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ThemedView } from '../components/ThemedView';
 import { IconSymbol } from '../components/IconSymbol';
+
+const OPTIONS = [
+  {
+    href: '/login?variant=institutionalSuite',
+    label: 'Institutional Suite',
+    badge: 'Institutional Suite • Institutions',
+    description: 'School and network leaders sign in to manage iGyan Ai copilots, automate operations, and orchestrate campus-wide innovation.',
+    icon: 'graduationcap.fill',
+    gradient: ['rgba(0, 171, 244, 0.2)', 'rgba(19, 81, 103, 0.1)'],
+  },
+  {
+    href: '/login?variant=professionalSuite',
+    label: 'Professional Suite',
+    badge: 'Professional Suite • Personal',
+    description: 'Students and families sign in to personalize copilots, access learning journeys, and track progress across devices.',
+    icon: 'person.fill',
+    gradient: ['rgba(0, 171, 244, 0.15)', 'rgba(10, 36, 52, 0.1)'],
+  },
+];
 
 export default function AuthOptionsScreen() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.logoCircle}>
-          <IconSymbol name="graduationcap.fill" size={40} color="#f8fafc" />
-        </View>
-        <Text style={styles.appName}>iGyan</Text>
-        <Text style={styles.subtitle}>Choose how to continue</Text>
-      </View>
-
-      {/* Auth Options */}
-      <View style={styles.optionsContainer}>
-        {/* Login Button */}
-        <TouchableOpacity 
-          style={styles.primaryButton} 
-          onPress={() => router.push('/login')}
-        >
-          <IconSymbol name="person.fill" size={24} color="#0a2434" />
-          <Text style={styles.primaryButtonText}>Login to Account</Text>
-        </TouchableOpacity>
-
-        {/* Register Button */}
-        <TouchableOpacity 
-          style={styles.secondaryButton} 
-          onPress={() => router.push('/signup')}
-        >
-          <IconSymbol name="star.fill" size={24} color="#00abf4" />
-          <Text style={styles.secondaryButtonText}>Create New Account</Text>
-        </TouchableOpacity>
-
-        {/* Divider */}
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>OR</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        {/* Social Login */}
-        <TouchableOpacity style={styles.socialButton}>
-          <IconSymbol name="paperplane.fill" size={24} color="#f8fafc" />
-          <Text style={styles.socialButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.socialButton}>
-          <IconSymbol name="play.circle.fill" size={24} color="#f8fafc" />
-          <Text style={styles.socialButtonText}>Continue with Apple</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Guest Mode */}
-      <TouchableOpacity 
-        style={styles.guestButton}
-        onPress={() => router.push('/(tabs)/home')}
+    <ThemedView style={styles.container}>
+      <LinearGradient
+        colors={['#0a2434', '#135167']}
+        style={styles.gradient}
       >
-        <Text style={styles.guestButtonText}>Continue as Guest</Text>
-      </TouchableOpacity>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.logo}>
+              <Text style={styles.logoText}>iGyan</Text>
+            </View>
+            <Text style={styles.title}>Choose Your Portal</Text>
+            <Text style={styles.subtitle}>
+              Select the portal that matches your role in the iGyan ecosystem
+            </Text>
+          </View>
 
-      {/* Terms */}
-      <Text style={styles.terms}>
-        By continuing, you agree to our Terms of Service and Privacy Policy
-      </Text>
-    </View>
+          {/* Portal Options */}
+          <View style={styles.optionsContainer}>
+            {OPTIONS.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.optionCard}
+                onPress={() => router.push(option.href)}
+                activeOpacity={0.9}
+              >
+                <LinearGradient
+                  colors={['rgba(248, 250, 252, 0.98)', 'rgba(248, 250, 252, 0.95)']}
+                  style={styles.cardGradient}
+                >
+                  {/* Badge */}
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{option.badge}</Text>
+                  </View>
+
+                  {/* Icon */}
+                  <View style={styles.iconWrapper}>
+                    <LinearGradient
+                      colors={['#00abf4', '#135167']}
+                      style={styles.iconContainer}
+                    >
+                      <IconSymbol name={option.icon} size={32} color="#f8fafc" />
+                    </LinearGradient>
+                  </View>
+
+                  {/* Content */}
+                  <Text style={styles.optionTitle}>{option.label}</Text>
+                  <Text style={styles.optionDescription}>{option.description}</Text>
+
+                  {/* Arrow */}
+                  <View style={styles.arrow}>
+                    <IconSymbol name="chevron.right" size={20} color="#00abf4" />
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Back Button */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <IconSymbol name="chevron.left.forwardslash.chevron.right" size={18} color="#f8fafc" />
+            <Text style={styles.backText}>Back to Welcome</Text>
+          </TouchableOpacity>
+
+          {/* Help Text */}
+          <Text style={styles.helpText}>
+            Not sure which portal to use? Contact our support team for guidance.
+          </Text>
+        </ScrollView>
+      </LinearGradient>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a2434',
+  },
+  gradient: {
+    flex: 1,
+  },
+  scrollContent: {
     padding: 24,
-    justifyContent: 'space-between',
+    paddingTop: 60,
   },
   header: {
     alignItems: 'center',
-    marginTop: 60,
     marginBottom: 40,
   },
-  logoCircle: {
+  logo: {
     width: 80,
     height: 80,
-    borderRadius: 40,
-    backgroundColor: '#135167',
+    borderRadius: 20,
+    backgroundColor: '#f8fafc',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  appName: {
-    fontSize: 36,
+  logoText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#0a2434',
+  },
+  title: {
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#f8fafc',
-    marginBottom: 8,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#00abf4',
-    opacity: 0.9,
+    fontSize: 15,
+    color: '#f8fafc',
+    opacity: 0.8,
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 20,
   },
   optionsContainer: {
-    flex: 1,
+    gap: 20,
+    marginBottom: 32,
   },
-  primaryButton: {
-    backgroundColor: '#00abf4',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    borderRadius: 16,
-    marginBottom: 16,
-    shadowColor: '#00abf4',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
+  optionCard: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
     shadowRadius: 12,
-    elevation: 6,
+    elevation: 8,
   },
-  primaryButtonText: {
-    color: '#0a2434',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 12,
+  cardGradient: {
+    padding: 24,
+    minHeight: 200,
   },
-  secondaryButton: {
-    backgroundColor: '#135167',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    borderRadius: 16,
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: '#00abf4',
+  badge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#00abf4',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 20,
   },
-  secondaryButtonText: {
-    color: '#00abf4',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 12,
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#135167',
-  },
-  dividerText: {
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
     color: '#f8fafc',
-    opacity: 0.5,
-    marginHorizontal: 16,
-    fontSize: 14,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
-  socialButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#135167',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  socialButtonText: {
-    color: '#f8fafc',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 12,
-  },
-  guestButton: {
-    paddingVertical: 16,
-    alignItems: 'center',
+  iconWrapper: {
     marginBottom: 16,
   },
-  guestButtonText: {
-    color: '#00abf4',
-    fontSize: 16,
-    fontWeight: '600',
+  iconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  terms: {
-    textAlign: 'center',
-    fontSize: 12,
+  optionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#0a2434',
+    marginBottom: 10,
+  },
+  optionDescription: {
+    fontSize: 14,
+    color: '#135167',
+    lineHeight: 21,
+    marginBottom: 16,
+  },
+  arrow: {
+    alignSelf: 'flex-end',
+    backgroundColor: 'rgba(0, 171, 244, 0.1)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    marginBottom: 16,
+  },
+  backText: {
     color: '#f8fafc',
-    opacity: 0.5,
-    lineHeight: 18,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  helpText: {
+    textAlign: 'center',
+    color: '#f8fafc',
+    opacity: 0.6,
+    fontSize: 13,
+    lineHeight: 20,
+    paddingHorizontal: 32,
   },
 });

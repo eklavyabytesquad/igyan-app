@@ -10,6 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '../hooks/useColorScheme';
+import { AuthProvider } from '../utils/AuthContext';
 
 // Custom theme for iGyan
 const iGyanLightTheme = {
@@ -44,19 +45,21 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? iGyanDarkTheme : iGyanLightTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="welcome" options={{ headerShown: false }} />
-        <Stack.Screen name="auth-options" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
-        <Stack.Screen name="signup" options={{ presentation: 'modal', headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="course/[id]" options={{ title: 'Course Details', headerShown: true }} />
-        <Stack.Screen name="lesson/[id]" options={{ title: 'Lesson', headerShown: true }} />
-        <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: true }} />
-      </Stack>
-      <StatusBar style="light" />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? iGyanDarkTheme : iGyanLightTheme}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="welcome" options={{ headerShown: false }} />
+          <Stack.Screen name="auth-options" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
+          <Stack.Screen name="signup" options={{ presentation: 'modal', headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="course/[id]" options={{ title: 'Course Details', headerShown: true }} />
+          <Stack.Screen name="lesson/[id]" options={{ title: 'Lesson', headerShown: true }} />
+          <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: true }} />
+        </Stack>
+        <StatusBar style="light" />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
