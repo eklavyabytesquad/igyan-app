@@ -3,13 +3,15 @@
  * Main landing page for the educational app
  */
 
-import React from 'react';
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
 import { useThemeColor } from '../../hooks/useThemeColor';
 import { homeStyles } from '../../styles/pages/homeStyles';
+import { useAuth } from '../../utils/AuthContext';
+import { supabase } from '../../utils/supabase';
 
 // Sample data for featured courses
 const featuredCourses = [
@@ -18,18 +20,56 @@ const featuredCourses = [
   { id: 3, title: 'Web Development', instructor: 'Mike Wilson', progress: 78 },
 ];
 
+const INSTITUTIONAL_ROLES = ['super_admin', 'co_admin', 'student', 'faculty'];
+
 export default function HomePage() {
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
+  const { user } = useAuth();
+  
+  const [schoolData, setSchoolData] = useState(null);
+
+  useEffect(() => {
+    if (user && user.school_id && INSTITUTIONAL_ROLES.includes(user.role)) {
+      fetchSchoolData();
+    }
+  }, [user]);
+
+  const fetchSchoolData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('schools')
+        .select('school_name, logo_url')
+        .eq('id', user.school_id)
+        .single();
+      
+      if (!error && data) {
+        setSchoolData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching school data:', error);
+    }
+  };
 
   return (
     <ThemedView style={homeStyles.container}>
       <ScrollView contentContainerStyle={homeStyles.scrollContent}>
         {/* Header Section */}
         <View style={homeStyles.headerSection}>
-          <ThemedText style={homeStyles.welcomeText}>Welcome back,</ThemedText>
+          {schoolData?.logo_url && (
+            <Image
+              source={{ uri: schoolData.logo_url }}
+              style={{ width: 50, height: 50, borderRadius: 8, marginBottom: 12 }}
+              resizeMode="contain"
+            />
+          )}
+          <ThemedText style={homeStyles.welcomeText}>
+            Welcome back, {user?.full_name?.split(' ')[0] || 'there'}!
+          </ThemedText>
           <ThemedText style={homeStyles.titleText}>
-            Learn with <Text style={homeStyles.brandText}>iGyan</Text>
+            {schoolData?.school_name || (
+              <>Learn with <Text style={homeStyles.brandText}>iGyan</Text></>
+            )}
           </ThemedText>
         </View>
 
