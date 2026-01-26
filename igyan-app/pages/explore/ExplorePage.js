@@ -16,6 +16,13 @@ const CARD_WIDTH = (width - 48) / 2; // 2 cards per row with padding
 
 const aiTools = [
   {
+    id: 'ai-copilot',
+    title: 'AI Copilot',
+    description: 'Your personal AI tutor with memory',
+    icon: 'brain.head.profile',
+    color: '#8B5CF6',
+  },
+  {
     id: 'code-tutor',
     title: 'Code Tutor',
     description: 'Learn programming with AI guidance',
@@ -120,7 +127,13 @@ export default function ExplorePage() {
             {aiTools.map((tool) => (
               <TouchableOpacity
                 key={tool.id}
-                onPress={() => router.push('/tools')}
+                onPress={() => {
+                  if (tool.id === 'ai-copilot') {
+                    router.push('/copilot');
+                  } else {
+                    router.push('/tools');
+                  }
+                }}
                 activeOpacity={0.7}
                 style={{ width: CARD_WIDTH }}
               >

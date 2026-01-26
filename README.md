@@ -1,1 +1,0 @@
-# igyan-app
