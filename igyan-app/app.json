@@ -10,7 +10,12 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.igyan.app"
+      "bundleIdentifier": "com.igyan.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to the camera for video calls and live classes.",
+        "NSMicrophoneUsageDescription": "This app needs access to the microphone for audio communication in live classes.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to share images."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +26,16 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.igyan.app"
+      "package": "com.igyan.app",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "MODIFY_AUDIO_SETTINGS",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "output": "static",

@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { ScrollView, View, TextInput, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
@@ -30,7 +31,39 @@ const instructors = [
   { id: 3, name: 'Rahul Verma', specialty: 'Business Strategy' },
 ];
 
+const learningTools = [
+  {
+    id: 'code-tutor',
+    title: 'Code Tutor',
+    description: 'AI-powered coding teacher',
+    icon: 'chevron.left.forwardslash.chevron.right',
+    color: '#3B82F6',
+  },
+  {
+    id: 'quiz-maker',
+    title: 'Quiz Maker',
+    description: 'Create custom quizzes',
+    icon: 'questionmark.circle.fill',
+    color: '#10B981',
+  },
+  {
+    id: 'step-by-step',
+    title: 'Step-by-Step Guide',
+    description: 'AI learning architect',
+    icon: 'list.number',
+    color: '#F59E0B',
+  },
+  {
+    id: 'flashcards',
+    title: 'Flashcards',
+    description: 'Review with flashcards',
+    icon: 'rectangle.stack.fill',
+    color: '#8B5CF6',
+  },
+];
+
 export default function ExplorePage() {
+  const router = useRouter();
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
@@ -72,6 +105,55 @@ export default function ExplorePage() {
                     </View>
                   </View>
                 </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Learning Tools Section */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginTop: 8 }}>
+          <ThemedText style={exploreStyles.sectionTitle}>🛠️ Learning Tools</ThemedText>
+          <TouchableOpacity onPress={() => router.push('/tools')}>
+            <ThemedText style={{ fontSize: 14, color: '#3B82F6', fontWeight: '600' }}>View All</ThemedText>
+          </TouchableOpacity>
+        </View>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
+        >
+          {learningTools.map((tool) => (
+            <TouchableOpacity 
+              key={tool.id}
+              onPress={() => router.push('/tools')}
+              activeOpacity={0.7}
+            >
+              <View style={[{
+                backgroundColor: cardColor,
+                borderRadius: 16,
+                padding: 16,
+                marginRight: 12,
+                width: 160,
+                borderWidth: 1,
+                borderColor: borderColor,
+              }]}>
+                <View style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 12,
+                  backgroundColor: tool.color + '20',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 12,
+                }}>
+                  <IconSymbol name={tool.icon} size={24} color={tool.color} />
+                </View>
+                <ThemedText style={{ fontSize: 16, fontWeight: '600', marginBottom: 4 }}>
+                  {tool.title}
+                </ThemedText>
+                <ThemedText style={{ fontSize: 12, color: '#999', lineHeight: 16 }}>
+                  {tool.description}
+                </ThemedText>
               </View>
             </TouchableOpacity>
           ))}

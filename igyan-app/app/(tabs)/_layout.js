@@ -3,16 +3,44 @@
  * Bottom tab navigation configuration
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs } from 'expo-router';
 
 import { HapticTab } from '../../components/HapticTab';
 import { IconSymbol } from '../../components/IconSymbol';
 import { Colors } from '../../constants/theme';
 import { useColorScheme } from '../../hooks/useColorScheme';
+import { useAuth } from '../../utils/AuthContext';
+import { supabase } from '../../utils/supabase';
+
+const INSTITUTIONAL_ROLES = ['super_admin', 'co_admin', 'student', 'faculty'];
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { user } = useAuth();
+  const [schoolName, setSchoolName] = useState('iGyan');
+
+  useEffect(() => {
+    if (user && user.school_id && INSTITUTIONAL_ROLES.includes(user.role)) {
+      fetchSchoolName();
+    }
+  }, [user]);
+
+  const fetchSchoolName = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('schools')
+        .select('school_name')
+        .eq('id', user.school_id)
+        .single();
+      
+      if (!error && data) {
+        setSchoolName(data.school_name);
+      }
+    } catch (error) {
+      console.error('Error fetching school name:', error);
+    }
+  };
 
   return (
     <Tabs
@@ -36,7 +64,7 @@ export default function TabLayout() {
         name="home"
         options={{
           title: 'Home',
-          headerTitle: 'iGyan',
+          headerTitle: schoolName,
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />

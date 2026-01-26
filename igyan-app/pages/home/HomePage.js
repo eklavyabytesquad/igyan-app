@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native';
+import { router } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
@@ -63,13 +64,11 @@ export default function HomePage() {
               resizeMode="contain"
             />
           )}
+          <ThemedText style={homeStyles.titleText}>
+            {schoolData?.school_name || 'iGyan'}
+          </ThemedText>
           <ThemedText style={homeStyles.welcomeText}>
             Welcome back, {user?.full_name?.split(' ')[0] || 'there'}!
-          </ThemedText>
-          <ThemedText style={homeStyles.titleText}>
-            {schoolData?.school_name || (
-              <>Learn with <Text style={homeStyles.brandText}>iGyan</Text></>
-            )}
           </ThemedText>
         </View>
 
@@ -83,6 +82,23 @@ export default function HomePage() {
             <Text style={homeStyles.featuredButtonText}>Explore Courses</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Live Classroom Banner */}
+        <TouchableOpacity 
+          style={[homeStyles.featuredCard, { backgroundColor: '#7c3aed', marginTop: 16 }]}
+          onPress={() => router.push('/live-classroom')}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <Text style={{ fontSize: 32, marginRight: 12 }}>🎥</Text>
+            <Text style={[homeStyles.featuredTitle, { flex: 1 }]}>Join Live Classes</Text>
+          </View>
+          <Text style={homeStyles.featuredDescription}>
+            Connect with teachers and classmates in real-time video sessions
+          </Text>
+          <View style={[homeStyles.featuredButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+            <Text style={homeStyles.featuredButtonText}>Start i-Meet →</Text>
+          </View>
+        </TouchableOpacity>
 
         {/* Stats Section */}
         <View style={homeStyles.statsContainer}>

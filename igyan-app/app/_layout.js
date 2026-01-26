@@ -57,6 +57,7 @@ export default function RootLayout() {
           <Stack.Screen name="course/[id]" options={{ title: 'Course Details', headerShown: true }} />
           <Stack.Screen name="lesson/[id]" options={{ title: 'Lesson', headerShown: true }} />
           <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: true }} />
+          <Stack.Screen name="live-classroom" options={{ title: 'Live Classroom', headerShown: true }} />
         </Stack>
         <StatusBar style="light" />
       </ThemeProvider>
