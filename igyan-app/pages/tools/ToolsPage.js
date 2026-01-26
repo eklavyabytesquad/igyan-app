@@ -22,12 +22,12 @@ const tools = [
     route: '/tools/code-tutor',
   },
   {
-    id: 'quiz-maker',
-    title: 'Quiz Maker',
-    description: 'Create and practice custom quizzes for any subject',
-    icon: 'questionmark.circle.fill',
+    id: 'project-learning',
+    title: 'Project-Based Learning',
+    description: 'Get personalized project recommendations',
+    icon: 'cube.box.fill',
     color: '#10B981',
-    route: '/tools/quiz-maker',
+    route: '/tools/project-learning',
   },
   {
     id: 'step-by-step',
@@ -38,12 +38,12 @@ const tools = [
     route: '/tools/step-by-step',
   },
   {
-    id: 'flashcards',
-    title: 'Flashcards',
-    description: 'Create and review flashcards for better retention',
-    icon: 'rectangle.stack.fill',
-    color: '#8B5CF6',
-    route: '/tools/flashcards',
+    id: 'text-summarizer',
+    title: 'Text Summarizer',
+    description: 'Condense long text into clear summaries',
+    icon: 'doc.text.fill',
+    color: '#06B6D4',
+    route: '/tools/text-summarizer',
   },
   {
     id: 'note-taking',
@@ -70,7 +70,7 @@ export default function ToolsPage() {
   const borderColor = useThemeColor({}, 'border');
 
   const handleToolPress = (tool) => {
-    if (tool.id === 'code-tutor' || tool.id === 'step-by-step') {
+    if (tool.id === 'code-tutor' || tool.id === 'step-by-step' || tool.id === 'project-learning' || tool.id === 'text-summarizer') {
       router.push(tool.route);
     } else {
       // Other tools - coming soon

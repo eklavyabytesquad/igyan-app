@@ -1,64 +1,47 @@
 /**
  * iGyan App - Explore Page
- * Discover new courses, categories, and instructors
+ * Discover AI-powered tools and resources
  */
 
 import React from 'react';
-import { ScrollView, View, TextInput, TouchableOpacity } from 'react-native';
+import { ScrollView, View, TextInput, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
 import { useThemeColor } from '../../hooks/useThemeColor';
-import { exploreStyles } from '../../styles/pages/exploreStyles';
 
-const trendingCourses = [
-  { id: 1, title: 'AI & Machine Learning', students: '15,000+', rating: 4.9 },
-  { id: 2, title: 'Full Stack Development', students: '12,500+', rating: 4.8 },
-  { id: 3, title: 'Digital Marketing', students: '8,000+', rating: 4.7 },
-];
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - 48) / 2; // 2 cards per row with padding
 
-const categories = [
-  { name: 'Programming', icon: 'chevron.left.forwardslash.chevron.right', count: 250 },
-  { name: 'Design', icon: 'star.fill', count: 120 },
-  { name: 'Business', icon: 'graduationcap.fill', count: 180 },
-  { name: 'Data Science', icon: 'play.circle.fill', count: 95 },
-];
-
-const instructors = [
-  { id: 1, name: 'Dr. Amit Kumar', specialty: 'Machine Learning Expert' },
-  { id: 2, name: 'Priya Sharma', specialty: 'Full Stack Developer' },
-  { id: 3, name: 'Rahul Verma', specialty: 'Business Strategy' },
-];
-
-const learningTools = [
+const aiTools = [
   {
     id: 'code-tutor',
     title: 'Code Tutor',
-    description: 'AI-powered coding teacher',
+    description: 'Learn programming with AI guidance',
     icon: 'chevron.left.forwardslash.chevron.right',
     color: '#3B82F6',
   },
   {
-    id: 'quiz-maker',
-    title: 'Quiz Maker',
-    description: 'Create custom quizzes',
-    icon: 'questionmark.circle.fill',
+    id: 'project-learning',
+    title: 'Project Ideas',
+    description: 'Get personalized project recommendations',
+    icon: 'cube.box.fill',
     color: '#10B981',
   },
   {
     id: 'step-by-step',
-    title: 'Step-by-Step Guide',
-    description: 'AI learning architect',
+    title: 'Step Guide',
+    description: 'Create detailed learning roadmaps',
     icon: 'list.number',
     color: '#F59E0B',
   },
   {
-    id: 'flashcards',
-    title: 'Flashcards',
-    description: 'Review with flashcards',
-    icon: 'rectangle.stack.fill',
-    color: '#8B5CF6',
+    id: 'text-summarizer',
+    title: 'Summarizer',
+    description: 'Condense text into key insights',
+    icon: 'doc.text.fill',
+    color: '#06B6D4',
   },
 ];
 
@@ -67,132 +50,186 @@ export default function ExplorePage() {
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
+  const backgroundColor = useThemeColor({}, 'background');
 
   return (
-    <ThemedView style={exploreStyles.container}>
-      <ScrollView>
+    <ThemedView style={{ flex: 1, backgroundColor }}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header with Search */}
-        <View style={exploreStyles.header}>
-          <ThemedText style={exploreStyles.headerTitle}>Explore</ThemedText>
-          <View style={[exploreStyles.searchBar, { backgroundColor: cardColor }]}>
-            <IconSymbol name="magnifyingglass" size={20} color={textColor} style={exploreStyles.searchIcon} />
+        <View style={{ padding: 16, paddingBottom: 8 }}>
+          <ThemedText style={{ fontSize: 32, fontWeight: '800', marginBottom: 16 }}>
+            Explore
+          </ThemedText>
+          <View style={{
+            backgroundColor: cardColor,
+            borderRadius: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderWidth: 1,
+            borderColor: borderColor,
+          }}>
+            <IconSymbol name="magnifyingglass" size={20} color="#999" />
             <TextInput
-              style={[exploreStyles.searchInput, { color: textColor }]}
-              placeholder="Search courses, instructors..."
+              style={{
+                flex: 1,
+                marginLeft: 12,
+                fontSize: 15,
+                color: textColor,
+              }}
+              placeholder="Search tools and resources..."
               placeholderTextColor="#999"
             />
           </View>
         </View>
 
-        {/* Trending Courses */}
-        <ThemedText style={exploreStyles.sectionTitle}>🔥 Trending Now</ThemedText>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={exploreStyles.trendingContainer}
-        >
-          {trendingCourses.map((course) => (
-            <TouchableOpacity key={course.id}>
-              <View style={[exploreStyles.trendingCard, { backgroundColor: cardColor }]}>
-                <View style={exploreStyles.trendingImage} />
-                <View style={exploreStyles.trendingContent}>
-                  <ThemedText style={exploreStyles.trendingTitle}>{course.title}</ThemedText>
-                  <View style={exploreStyles.trendingMeta}>
-                    <ThemedText style={exploreStyles.trendingStudents}>{course.students} students</ThemedText>
-                    <View style={exploreStyles.trendingRating}>
-                      <IconSymbol name="star.fill" size={16} color="#FFD700" />
-                      <ThemedText style={exploreStyles.ratingText}>{course.rating}</ThemedText>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Learning Tools Section */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginTop: 8 }}>
-          <ThemedText style={exploreStyles.sectionTitle}>🛠️ Learning Tools</ThemedText>
-          <TouchableOpacity onPress={() => router.push('/tools')}>
-            <ThemedText style={{ fontSize: 14, color: '#3B82F6', fontWeight: '600' }}>View All</ThemedText>
-          </TouchableOpacity>
-        </View>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
-        >
-          {learningTools.map((tool) => (
-            <TouchableOpacity 
-              key={tool.id}
+        {/* AI Tools Section */}
+        <View style={{ paddingHorizontal: 16, marginTop: 8 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <View>
+              <ThemedText style={{ fontSize: 24, fontWeight: '700', marginBottom: 4 }}>
+                🤖 AI Tools
+              </ThemedText>
+              <ThemedText style={{ fontSize: 14, color: '#999' }}>
+                Powered by advanced AI technology
+              </ThemedText>
+            </View>
+            <TouchableOpacity
               onPress={() => router.push('/tools')}
-              activeOpacity={0.7}
+              style={{
+                backgroundColor: '#3B82F6',
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 12,
+              }}
             >
-              <View style={[{
-                backgroundColor: cardColor,
-                borderRadius: 16,
-                padding: 16,
-                marginRight: 12,
-                width: 160,
-                borderWidth: 1,
-                borderColor: borderColor,
-              }]}>
+              <ThemedText style={{ fontSize: 13, fontWeight: '700', color: '#FFF' }}>
+                View All
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+
+          {/* Tools Grid - 2 columns */}
+          <View style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 16,
+            marginBottom: 24,
+          }}>
+            {aiTools.map((tool) => (
+              <TouchableOpacity
+                key={tool.id}
+                onPress={() => router.push('/tools')}
+                activeOpacity={0.7}
+                style={{ width: CARD_WIDTH }}
+              >
                 <View style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 12,
-                  backgroundColor: tool.color + '20',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 12,
+                  backgroundColor: cardColor,
+                  borderRadius: 20,
+                  padding: 20,
+                  borderWidth: 1,
+                  borderColor: borderColor,
+                  height: 180,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 8,
+                  elevation: 2,
                 }}>
-                  <IconSymbol name={tool.icon} size={24} color={tool.color} />
+                  <View style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 16,
+                    backgroundColor: tool.color + '20',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 16,
+                  }}>
+                    <IconSymbol name={tool.icon} size={28} color={tool.color} />
+                  </View>
+                  <ThemedText style={{
+                    fontSize: 17,
+                    fontWeight: '700',
+                    marginBottom: 6,
+                    lineHeight: 22,
+                  }}>
+                    {tool.title}
+                  </ThemedText>
+                  <ThemedText style={{
+                    fontSize: 13,
+                    color: '#999',
+                    lineHeight: 18,
+                  }}>
+                    {tool.description}
+                  </ThemedText>
                 </View>
-                <ThemedText style={{ fontSize: 16, fontWeight: '600', marginBottom: 4 }}>
-                  {tool.title}
-                </ThemedText>
-                <ThemedText style={{ fontSize: 12, color: '#999', lineHeight: 16 }}>
-                  {tool.description}
-                </ThemedText>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        {/* Categories */}
-        <ThemedText style={exploreStyles.sectionTitle}>📚 Browse Categories</ThemedText>
-        <View style={exploreStyles.categoriesGrid}>
-          {categories.map((category, index) => (
-            <TouchableOpacity key={index}>
-              <View style={[exploreStyles.categoryCard, { backgroundColor: cardColor }]}>
-                <IconSymbol 
-                  name={category.icon} 
-                  size={32} 
-                  color="#1E88E5" 
-                  style={exploreStyles.categoryIcon} 
-                />
-                <ThemedText style={exploreStyles.categoryTitle}>{category.name}</ThemedText>
-                <ThemedText style={exploreStyles.categoryCount}>{category.count} courses</ThemedText>
+          {/* Info Card */}
+          <View style={{
+            backgroundColor: '#3B82F6' + '15',
+            borderRadius: 20,
+            padding: 20,
+            marginBottom: 24,
+            borderWidth: 1,
+            borderColor: '#3B82F6' + '30',
+          }}>
+            <View style={{ flexDirection: 'row', alignItems: 'start', gap: 16 }}>
+              <View style={{
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                backgroundColor: '#3B82F6',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <IconSymbol name="sparkles" size={24} color="#FFF" />
               </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+              <View style={{ flex: 1 }}>
+                <ThemedText style={{ fontSize: 18, fontWeight: '700', marginBottom: 8, color: '#3B82F6' }}>
+                  AI-Powered Learning
+                </ThemedText>
+                <ThemedText style={{ fontSize: 14, lineHeight: 20, color: '#999' }}>
+                  Our tools use cutting-edge AI to provide personalized learning experiences. 
+                  Perfect for students and educators looking to enhance productivity.
+                </ThemedText>
+              </View>
+            </View>
+          </View>
 
-        {/* Top Instructors */}
-        <ThemedText style={exploreStyles.sectionTitle}>👨‍🏫 Top Instructors</ThemedText>
-        <View style={exploreStyles.instructorsSection}>
-          {instructors.map((instructor) => (
-            <TouchableOpacity key={instructor.id}>
-              <View style={[exploreStyles.instructorCard, { backgroundColor: cardColor }]}>
-                <View style={exploreStyles.instructorAvatar} />
-                <View style={exploreStyles.instructorInfo}>
-                  <ThemedText style={exploreStyles.instructorName}>{instructor.name}</ThemedText>
-                  <ThemedText style={exploreStyles.instructorSpecialty}>{instructor.specialty}</ThemedText>
-                </View>
-                <IconSymbol name="chevron.right" size={20} color={textColor} />
+          {/* Coming Soon Card */}
+          <View style={{
+            backgroundColor: cardColor,
+            borderRadius: 20,
+            padding: 20,
+            marginBottom: 24,
+            borderWidth: 1,
+            borderColor: borderColor,
+          }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: '#10B981' + '20',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: 12,
+              }}>
+                <IconSymbol name="bell.fill" size={20} color="#10B981" />
               </View>
-            </TouchableOpacity>
-          ))}
+              <ThemedText style={{ fontSize: 18, fontWeight: '700', flex: 1 }}>
+                More Tools Coming Soon
+              </ThemedText>
+            </View>
+            <ThemedText style={{ fontSize: 14, lineHeight: 20, color: '#999' }}>
+              We're constantly adding new AI-powered tools based on user feedback. 
+              Stay tuned for quiz generators, flashcards, study planners, and more!
+            </ThemedText>
+          </View>
         </View>
       </ScrollView>
     </ThemedView>

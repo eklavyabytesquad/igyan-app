@@ -3,4 +3,4 @@ export { default as HomePage } from './home';
 export { default as CoursesPage } from './courses';
 export { default as ExplorePage } from './explore';
 export { default as ProfilePage } from './profile';
-export { ToolsPage, CodeTutorPage, StepByStepGuidePage } from './tools';
+export { ToolsPage, CodeTutorPage, StepByStepGuidePage, ProjectBasedLearningPage, TextSummarizerPage } from './tools';
