@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { router } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
@@ -32,6 +33,10 @@ export default function ProfilePage() {
   const [loadingSchool, setLoadingSchool] = useState(false);
 
   useEffect(() => {
+    if (!user) {
+      router.replace('/welcome');
+      return;
+    }
     if (user && user.school_id && INSTITUTIONAL_ROLES.includes(user.role)) {
       fetchSchoolData();
     }
@@ -61,6 +66,11 @@ export default function ProfilePage() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/welcome');
+  };
+
   const isInstitutionalUser = user && INSTITUTIONAL_ROLES.includes(user.role);
 
   return (
@@ -81,8 +91,8 @@ export default function ProfilePage() {
               </ThemedText>
             )}
           </View>
-          <ThemedText style={profileStyles.userName}>{user?.full_name || 'Guest User'}</ThemedText>
-          <ThemedText style={profileStyles.userEmail}>{user?.email || 'Not available'}</ThemedText>
+          <ThemedText style={profileStyles.userName}>{user?.full_name}</ThemedText>
+          <ThemedText style={profileStyles.userEmail}>{user?.email}</ThemedText>
           {user?.phone && (
             <ThemedText style={profileStyles.userEmail}>
               📱 {user.phone} {user.phone_verified && '✓'}
@@ -198,7 +208,7 @@ export default function ProfilePage() {
         </View>
 
         {/* Logout Button */}
-        <TouchableOpacity style={profileStyles.logoutButton}>
+        <TouchableOpacity style={profileStyles.logoutButton} onPress={handleLogout}>
           <ThemedText style={profileStyles.logoutText}>Logout</ThemedText>
         </TouchableOpacity>
 
