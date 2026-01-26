@@ -4,11 +4,13 @@
  */
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedView } from '../components/ThemedView';
 import { IconSymbol } from '../components/IconSymbol';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const OPTIONS = [
   {
@@ -38,15 +40,14 @@ export default function AuthOptionsScreen() {
         colors={['#0a2434', '#135167']}
         style={styles.gradient}
       >
-        <ScrollView 
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
+        <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.logo}>
-              <Text style={styles.logoText}>iGyan</Text>
-            </View>
+            <Image 
+              source={require('../assets/logos/igx.png')} 
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Choose Your Portal</Text>
             <Text style={styles.subtitle}>
               Select the portal that matches your role in the iGyan ecosystem
@@ -66,48 +67,35 @@ export default function AuthOptionsScreen() {
                   colors={['rgba(248, 250, 252, 0.98)', 'rgba(248, 250, 252, 0.95)']}
                   style={styles.cardGradient}
                 >
-                  {/* Badge */}
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{option.badge}</Text>
-                  </View>
-
-                  {/* Icon */}
-                  <View style={styles.iconWrapper}>
+                  {/* Icon and Content Row */}
+                  <View style={styles.cardRow}>
                     <LinearGradient
                       colors={['#00abf4', '#135167']}
                       style={styles.iconContainer}
                     >
-                      <IconSymbol name={option.icon} size={32} color="#f8fafc" />
+                      <IconSymbol name={option.icon} size={28} color="#f8fafc" />
                     </LinearGradient>
-                  </View>
-
-                  {/* Content */}
-                  <Text style={styles.optionTitle}>{option.label}</Text>
-                  <Text style={styles.optionDescription}>{option.description}</Text>
-
-                  {/* Arrow */}
-                  <View style={styles.arrow}>
-                    <IconSymbol name="chevron.right" size={20} color="#00abf4" />
+                    <View style={styles.cardContent}>
+                      <View style={styles.badge}>
+                        <Text style={styles.badgeText}>{option.badge}</Text>
+                      </View>
+                      <Text style={styles.optionTitle}>{option.label}</Text>
+                      <Text style={styles.optionDescription} numberOfLines={2}>{option.description}</Text>
+                    </View>
+                    <View style={styles.arrow}>
+                      <IconSymbol name="chevron.right" size={18} color="#00abf4" />
+                    </View>
                   </View>
                 </LinearGradient>
               </TouchableOpacity>
             ))}
           </View>
 
-          {/* Back Button */}
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <IconSymbol name="chevron.left.forwardslash.chevron.right" size={18} color="#f8fafc" />
-            <Text style={styles.backText}>Back to Welcome</Text>
-          </TouchableOpacity>
-
           {/* Help Text */}
           <Text style={styles.helpText}>
             Not sure which portal to use? Contact our support team for guidance.
           </Text>
-        </ScrollView>
+        </View>
       </LinearGradient>
     </ThemedView>
   );
@@ -120,51 +108,41 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
-  scrollContent: {
-    padding: 24,
-    paddingTop: 60,
+  content: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 40,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
   },
-  logo: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: '#f8fafc',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  logoText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#0a2434',
+  logoImage: {
+    width: 308,
+    height: 308,
+    marginBottom: -10,
+    marginTop: -30,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#f8fafc',
-    marginBottom: 12,
+    marginBottom: 6,
     textAlign: 'center',
+    marginTop: -15,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#f8fafc',
     opacity: 0.8,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
     paddingHorizontal: 20,
+    marginBottom: 16,
   },
   optionsContainer: {
-    gap: 20,
-    marginBottom: 32,
+    flex: 1,
+    gap: 16,
+    justifyContent: 'center',
   },
   optionCard: {
     borderRadius: 20,
@@ -174,76 +152,71 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 8,
+    flex: 1,
+    maxHeight: 140,
   },
   cardGradient: {
     padding: 24,
-    minHeight: 200,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 18,
+  },
+  cardContent: {
+    flex: 1,
   },
   badge: {
     alignSelf: 'flex-start',
     backgroundColor: '#00abf4',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginBottom: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 14,
+    marginBottom: 8,
   },
   badgeText: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '700',
     color: '#f8fafc',
     textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  iconWrapper: {
-    marginBottom: 16,
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+    letterSpacing: 0.5,
   },
   optionTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#0a2434',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   optionDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#135167',
-    lineHeight: 21,
-    marginBottom: 16,
+    lineHeight: 18,
   },
   arrow: {
-    alignSelf: 'flex-end',
     backgroundColor: 'rgba(0, 171, 244, 0.1)',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 12,
-    marginBottom: 16,
-  },
-  backText: {
-    color: '#f8fafc',
-    fontSize: 16,
-    fontWeight: '500',
+    marginLeft: 12,
   },
   helpText: {
     textAlign: 'center',
     color: '#f8fafc',
     opacity: 0.6,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 18,
     paddingHorizontal: 32,
+    paddingBottom: 20,
   },
 });

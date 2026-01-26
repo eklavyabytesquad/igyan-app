@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { ScrollView, View, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { ScrollView, View, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
@@ -12,6 +12,7 @@ import { useThemeColor } from '../../hooks/useThemeColor';
 import { profileStyles } from '../../styles/pages/profileStyles';
 import { useAuth } from '../../utils/AuthContext';
 import { supabase } from '../../utils/supabase';
+import { router } from 'expo-router';
 
 const menuItems = [
   { icon: 'book.fill', title: 'My Courses', badge: 12 },
@@ -62,6 +63,27 @@ export default function ProfilePage() {
   };
 
   const isInstitutionalUser = user && INSTITUTIONAL_ROLES.includes(user.role);
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/welcome');
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <ThemedView style={profileStyles.container}>
@@ -198,7 +220,7 @@ export default function ProfilePage() {
         </View>
 
         {/* Logout Button */}
-        <TouchableOpacity style={profileStyles.logoutButton}>
+        <TouchableOpacity style={profileStyles.logoutButton} onPress={handleLogout}>
           <ThemedText style={profileStyles.logoutText}>Logout</ThemedText>
         </TouchableOpacity>
 
