@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { IconSymbol } from '../components/IconSymbol';
 
@@ -44,11 +44,11 @@ export default function WelcomeScreen() {
           },
         ]}
       >
-        <View style={styles.logoCircle}>
-          <IconSymbol name="graduationcap.fill" size={60} color="#f8fafc" />
-        </View>
-        <Text style={styles.appName}>iGyan</Text>
-        <Text style={styles.tagline}>Learn, Grow, Succeed</Text>
+        <Image 
+          source={require('../assets/logos/igx.png')} 
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </Animated.View>
 
       {/* Welcome Message */}
@@ -86,31 +86,13 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginTop: 40,
+    marginHorizontal: -30,
+    width: '100%',
   },
-  logoCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#135167',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-    shadowColor: '#00abf4',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  appName: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#f8fafc',
-    marginBottom: 8,
-  },
-  tagline: {
-    fontSize: 18,
-    color: '#00abf4',
-    fontWeight: '500',
+  logoImage: {
+    width: '160%',
+    height: undefined,
+    aspectRatio: 1,
   },
   textContainer: {
     alignItems: 'center',
