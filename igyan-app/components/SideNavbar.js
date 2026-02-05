@@ -33,6 +33,7 @@ const navItems = [
   { id: 'viva-ai', label: 'Viva AI', icon: 'sparkles', route: '/viva-ai' },
   { id: 'shark-ai', label: 'Shark AI', icon: 'chart.line.uptrend.xyaxis', route: '/shark-ai' },
   { id: 'quiz-me', label: 'Quiz Me', icon: 'questionmark.circle.fill', route: '/quiz-me' },
+  { id: 'teacher-prep', label: 'Teacher Prep', icon: 'graduationcap.fill', route: '/teacher-prep' },
   { id: 'content-gen', label: 'Content Generator', icon: 'doc.richtext.fill', route: '/content-generator' },
   { id: 'incubation', label: 'Incubation Hub', icon: 'building.2.fill', route: '/incubation-hub' },
   { id: 'tools', label: 'AI Tools', icon: 'cpu', route: '/tools' },

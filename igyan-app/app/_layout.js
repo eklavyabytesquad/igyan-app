@@ -70,6 +70,7 @@ function RootLayoutContent() {
           <Stack.Screen name="incubation-hub" options={{ title: 'Incubation Hub', headerShown: false }} />
           <Stack.Screen name="shark-ai" options={{ title: 'Shark AI', headerShown: false }} />
           <Stack.Screen name="quiz-me" options={{ title: 'Quiz Me', headerShown: false }} />
+          <Stack.Screen name="teacher-prep" options={{ title: 'Teacher Prep', headerShown: false }} />
           <Stack.Screen name="tools" options={{ headerShown: false }} />
         </Stack>
         <SideNavbar isOpen={isOpen} onClose={closeSideNav} />
