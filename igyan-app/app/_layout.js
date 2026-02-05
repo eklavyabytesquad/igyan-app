@@ -65,6 +65,7 @@ function RootLayoutContent() {
           <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: false }} />
           <Stack.Screen name="live-classroom" options={{ title: 'Live Classroom', headerShown: false }} />
           <Stack.Screen name="viva-ai" options={{ title: 'Viva AI', headerShown: false }} />
+          <Stack.Screen name="content-generator" options={{ title: 'Content Generator', headerShown: false }} />
           <Stack.Screen name="tools" options={{ headerShown: false }} />
         </Stack>
         <SideNavbar isOpen={isOpen} onClose={closeSideNav} />

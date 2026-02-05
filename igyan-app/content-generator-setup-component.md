@@ -892,7 +892,655 @@ import { ActivityIndicator, View, Text } from 'react-native';
 
 ---
 
-## 📁 Suggested React Native Project Structure
+## � PPT Generation Flow in React Native
+
+### Complete Download Button Implementation
+
+When user clicks the **Download** button in React Native, here's the complete flow:
+
+#### Architecture Overview
+```
+User clicks Download
+  ↓
+Send content + template to Backend API
+  ↓
+Backend generates PPT using PptxGenJS
+  ↓
+Backend uploads PPT to Cloud Storage (S3/Firebase)
+  ↓
+Backend returns download URL
+  ↓
+Mobile app downloads file using RNFS
+  ↓
+Mobile app shares file or saves to device
+  ↓
+User can open/share PPT
+```
+
+### Step-by-Step Implementation
+
+#### 1. Backend API Endpoint (Node.js Example)
+
+```javascript
+// server.js (Node.js + Express)
+const express = require('express');
+const PptxGenJS = require('pptxgenjs');
+const AWS = require('aws-sdk');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+});
+
+app.post('/api/generate-ppt', async (req, res) => {
+  try {
+    const { content, title, template, type } = req.body;
+    
+    // Create PPT
+    const pptx = new PptxGenJS();
+    pptx.author = 'IGYAN Content Generator';
+    pptx.title = title;
+    pptx.defineLayout({ name: 'WIDESCREEN', width: 10, height: 5.625 });
+    pptx.layout = 'WIDESCREEN';
+    
+    // Parse content based on type
+    let slides;
+    if (type === 'shark-ppt') {
+      const parsed = JSON.parse(content);
+      slides = parsed.slides || [];
+      
+      // Generate Shark PPT (5-slide investor pitch)
+      await generateSharkPPT(pptx, slides, title, template);
+    } else {
+      // Generate Standard PPT (educational)
+      await generateStandardPPT(pptx, content, title, template);
+    }
+    
+    // Save PPT to temp file
+    const fileName = `${title.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.pptx`;
+    const tempPath = path.join('/tmp', fileName);
+    
+    await pptx.writeFile({ fileName: tempPath });
+    
+    // Upload to S3 (or any cloud storage)
+    const fileContent = fs.readFileSync(tempPath);
+    const s3Params = {
+      Bucket: process.env.S3_BUCKET,
+      Key: `presentations/${fileName}`,
+      Body: fileContent,
+      ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      ACL: 'public-read', // Or use signed URLs for private files
+    };
+    
+    const uploadResult = await s3.upload(s3Params).promise();
+    
+    // Clean up temp file
+    fs.unlinkSync(tempPath);
+    
+    // Return download URL
+    res.json({
+      success: true,
+      downloadUrl: uploadResult.Location,
+      fileName: fileName,
+      fileSize: fileContent.length,
+    });
+    
+  } catch (error) {
+    console.error('PPT Generation Error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// Generate Shark PPT function
+async function generateSharkPPT(pptx, slides, title, template) {
+  // Title Slide
+  const titleSlide = pptx.addSlide();
+  titleSlide.background = { color: template.colors.primary };
+  
+  titleSlide.addText(title, {
+    x: 0.5, y: 1.8, w: 9, h: 1.2,
+    fontSize: template.fontSizes.title,
+    bold: true, color: 'FFFFFF', align: 'center',
+  });
+  
+  // Content Slides (5 slides)
+  slides.forEach((slideData, index) => {
+    const slide = pptx.addSlide();
+    slide.background = { color: template.colors.background };
+    
+    // Left accent bar
+    slide.addShape('rect', {
+      x: 0, y: 0, w: 0.15, h: 5.625,
+      fill: { color: template.colors.primary },
+    });
+    
+    // Slide title
+    slide.addText(slideData.title, {
+      x: 1.0, y: 0.2, w: 6.5, h: 0.6,
+      fontSize: template.fontSizes.heading,
+      bold: true, color: template.colors.primary,
+    });
+    
+    // Subtitle
+    if (slideData.subtitle) {
+      slide.addText(slideData.subtitle, {
+        x: 1.0, y: 0.75, w: 6.5, h: 0.35,
+        fontSize: 12, color: template.colors.secondary, italic: true,
+      });
+    }
+    
+    // Content bullets
+    const bullets = slideData.content.split('\n').filter(l => l.trim()).map(line => ({
+      text: line.replace(/^[-•]\s*/, '').trim(),
+      options: { bullet: { type: 'bullet', color: template.colors.accent } }
+    }));
+    
+    slide.addText(bullets, {
+      x: 1.0, y: 1.35, w: 8.5, h: 2.8,
+      fontSize: template.fontSizes.body, color: template.colors.text,
+    });
+    
+    // Metrics (if any)
+    if (slideData.metrics && slideData.metrics.length > 0) {
+      const metricWidth = 8.5 / slideData.metrics.length;
+      slideData.metrics.forEach((metric, mIdx) => {
+        const xPos = 1.0 + mIdx * metricWidth;
+        
+        slide.addShape('roundRect', {
+          x: xPos, y: 4.3, w: metricWidth - 0.2, h: 1.0,
+          fill: { color: template.colors.accent }, rectRadius: 0.1,
+        });
+        
+        slide.addText(metric.value, {
+          x: xPos, y: 4.4, w: metricWidth - 0.2, h: 0.5,
+          fontSize: 18, bold: true, color: 'FFFFFF', align: 'center',
+        });
+        
+        slide.addText(metric.label, {
+          x: xPos, y: 4.85, w: metricWidth - 0.2, h: 0.35,
+          fontSize: 10, color: 'FFFFFF', align: 'center',
+        });
+      });
+    }
+  });
+  
+  // Thank You Slide
+  const thankYouSlide = pptx.addSlide();
+  thankYouSlide.background = { color: template.colors.primary };
+  thankYouSlide.addText('Thank You!', {
+    x: 0.5, y: 2.2, w: 9, h: 0.8,
+    fontSize: 44, bold: true, color: 'FFFFFF', align: 'center',
+  });
+}
+
+app.listen(3001, () => console.log('Server running on port 3001'));
+```
+
+#### 2. React Native Frontend - Download Button Handler
+
+```javascript
+// screens/ContentGeneratorScreen.js
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  Platform,
+  PermissionsAndroid,
+} from 'react-native';
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
+import axios from 'axios';
+
+const ContentGeneratorScreen = () => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  
+  const API_BASE_URL = 'https://your-backend.com';
+
+  // Request storage permission (Android)
+  const requestStoragePermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message: 'App needs access to save the presentation',
+            buttonPositive: 'OK',
+          }
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // Main download handler
+  const handleDownload = async () => {
+    // Check permission
+    const hasPermission = await requestStoragePermission();
+    if (!hasPermission) {
+      Alert.alert('Permission Denied', 'Cannot save file without storage permission');
+      return;
+    }
+
+    setIsDownloading(true);
+    setDownloadProgress(0);
+
+    try {
+      // Step 1: Send content to backend for PPT generation
+      console.log('Sending content to backend...');
+      
+      const response = await axios.post(
+        `${API_BASE_URL}/api/generate-ppt`,
+        {
+          content: generatedContent.content, // From OpenAI
+          title: generatedContent.title,
+          template: selectedTemplate, // Selected by user
+          type: contentType, // 'ppt', 'pdf', or 'shark-ppt'
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 60000, // 60 seconds timeout
+        }
+      );
+
+      if (!response.data.success) {
+        throw new Error('Failed to generate presentation');
+      }
+
+      const { downloadUrl, fileName } = response.data;
+      console.log('PPT generated, download URL:', downloadUrl);
+
+      // Step 2: Download the PPT file to device
+      const downloadDest = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+      
+      console.log('Downloading file to:', downloadDest);
+      
+      const downloadResult = RNFS.downloadFile({
+        fromUrl: downloadUrl,
+        toFile: downloadDest,
+        background: true,
+        discretionary: true,
+        progressDivider: 10,
+        begin: (res) => {
+          console.log('Download started, total bytes:', res.contentLength);
+        },
+        progress: (res) => {
+          const progress = (res.bytesWritten / res.contentLength) * 100;
+          setDownloadProgress(Math.floor(progress));
+          console.log(`Download progress: ${progress.toFixed(0)}%`);
+        },
+      });
+
+      const result = await downloadResult.promise;
+
+      if (result.statusCode === 200) {
+        console.log('Download successful!');
+        setDownloadProgress(100);
+        
+        // Step 3: Share or Save the file
+        await shareOrSaveFile(downloadDest, fileName);
+        
+        Alert.alert(
+          'Success! 🎉',
+          'Your presentation has been downloaded successfully!',
+          [
+            {
+              text: 'OK',
+              onPress: () => setDownloadProgress(0),
+            },
+          ]
+        );
+      } else {
+        throw new Error(`Download failed with status: ${result.statusCode}`);
+      }
+      
+    } catch (error) {
+      console.error('Download error:', error);
+      
+      let errorMessage = 'Failed to download presentation. Please try again.';
+      
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please check your internet connection.';
+      } else if (error.response) {
+        errorMessage = error.response.data?.error || 'Server error occurred.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('Download Failed', errorMessage);
+      setDownloadProgress(0);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // Share or save file
+  const shareOrSaveFile = async (filePath, fileName) => {
+    try {
+      const shareOptions = {
+        title: 'Share Presentation',
+        message: 'Check out this presentation!',
+        url: `file://${filePath}`,
+        type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        subject: fileName,
+        failOnCancel: false,
+      };
+      
+      const result = await Share.open(shareOptions);
+      
+      if (result.success) {
+        console.log('File shared successfully');
+      }
+    } catch (error) {
+      if (error.message !== 'User did not share') {
+        console.error('Share error:', error);
+        // If share fails, file is still saved in DocumentDirectory
+        Alert.alert(
+          'File Saved',
+          `Presentation saved to: ${RNFS.DocumentDirectoryPath}/${fileName}`
+        );
+      }
+    }
+  };
+
+  // Copy file to Downloads folder (Android only)
+  const copyToDownloads = async (sourcePath, fileName) => {
+    if (Platform.OS === 'android') {
+      try {
+        const destPath = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+        await RNFS.copyFile(sourcePath, destPath);
+        console.log('File copied to Downloads folder:', destPath);
+        return destPath;
+      } catch (error) {
+        console.error('Copy to Downloads error:', error);
+      }
+    }
+    return sourcePath;
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* Download Button */}
+      <TouchableOpacity
+        style={[
+          styles.downloadButton,
+          isDownloading && styles.downloadButtonDisabled,
+        ]}
+        onPress={handleDownload}
+        disabled={isDownloading || !generatedContent}
+      >
+        {isDownloading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator color="#fff" size="small" />
+            <Text style={styles.buttonText}>
+              {downloadProgress < 50 
+                ? `Generating... ${downloadProgress}%`
+                : `Downloading... ${downloadProgress}%`
+              }
+            </Text>
+          </View>
+        ) : (
+          <>
+            <Icon name="download" size={20} color="#fff" />
+            <Text style={styles.buttonText}>Download PPT</Text>
+          </>
+        )}
+      </TouchableOpacity>
+
+      {/* Progress Bar */}
+      {isDownloading && (
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View 
+              style={[
+                styles.progressFill, 
+                { width: `${downloadProgress}%` }
+              ]} 
+            />
+          </View>
+          <Text style={styles.progressText}>{downloadProgress}%</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+  downloadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#6366f1',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  downloadButtonDisabled: {
+    backgroundColor: '#9ca3af',
+    shadowOpacity: 0.1,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  progressContainer: {
+    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  progressBar: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#6366f1',
+  },
+  progressText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
+    width: 40,
+    textAlign: 'right',
+  },
+});
+
+export default ContentGeneratorScreen;
+```
+
+#### 3. Alternative: Firebase Storage
+
+If using Firebase instead of AWS S3:
+
+```javascript
+// Backend (Node.js with Firebase)
+const admin = require('firebase-admin');
+const { getStorage } = require('firebase-admin/storage');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: 'your-app.appspot.com',
+});
+
+const bucket = getStorage().bucket();
+
+// Upload PPT to Firebase Storage
+async function uploadToFirebase(tempPath, fileName) {
+  const destination = `presentations/${fileName}`;
+  
+  await bucket.upload(tempPath, {
+    destination: destination,
+    metadata: {
+      contentType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    },
+  });
+  
+  // Get signed URL (valid for 1 hour)
+  const file = bucket.file(destination);
+  const [url] = await file.getSignedUrl({
+    action: 'read',
+    expires: Date.now() + 60 * 60 * 1000, // 1 hour
+  });
+  
+  return url;
+}
+```
+
+#### 4. Error Handling Best Practices
+
+```javascript
+// Comprehensive error handling
+const handleDownloadWithRetry = async (maxRetries = 3) => {
+  let attempt = 0;
+  
+  while (attempt < maxRetries) {
+    try {
+      await handleDownload();
+      return; // Success
+    } catch (error) {
+      attempt++;
+      
+      if (attempt >= maxRetries) {
+        Alert.alert(
+          'Download Failed',
+          `Failed after ${maxRetries} attempts. Please try again later.`,
+          [
+            { text: 'Retry', onPress: () => handleDownloadWithRetry() },
+            { text: 'Cancel', style: 'cancel' },
+          ]
+        );
+        return;
+      }
+      
+      // Wait before retry (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+      console.log(`Retrying download, attempt ${attempt + 1}...`);
+    }
+  }
+};
+```
+
+#### 5. Offline Support with Caching
+
+```javascript
+// Cache downloaded files
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const cacheDownloadedFile = async (fileName, filePath) => {
+  try {
+    const cached = await AsyncStorage.getItem('downloaded_files');
+    const files = cached ? JSON.parse(cached) : [];
+    
+    files.push({
+      name: fileName,
+      path: filePath,
+      timestamp: Date.now(),
+    });
+    
+    await AsyncStorage.setItem('downloaded_files', JSON.stringify(files));
+  } catch (error) {
+    console.error('Cache error:', error);
+  }
+};
+
+// View cached files
+const viewCachedFiles = async () => {
+  const cached = await AsyncStorage.getItem('downloaded_files');
+  const files = cached ? JSON.parse(cached) : [];
+  
+  // Show list of previously downloaded files
+  return files;
+};
+```
+
+### Quick Reference: Download Flow
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  React Native App - User clicks Download Button         │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  1. Send POST request to backend API                    │
+│     Body: { content, title, template, type }            │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  2. Backend generates PPT using PptxGenJS               │
+│     - Parse content (standard or shark-ppt)             │
+│     - Create slides with template styling               │
+│     - Save to temp file                                 │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  3. Backend uploads PPT to Cloud Storage                │
+│     - AWS S3 or Firebase Storage                        │
+│     - Generate public or signed URL                     │
+│     - Delete temp file                                  │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  4. Backend returns download URL to app                 │
+│     Response: { downloadUrl, fileName }                 │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  5. App downloads file using RNFS                       │
+│     - Progress tracking                                 │
+│     - Save to DocumentDirectory                         │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  6. App shares file or saves to Downloads               │
+│     - Use Share API to open share sheet                 │
+│     - Or copy to Downloads folder (Android)             │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## �📁 Suggested React Native Project Structure
 
 ```
 content-generator-mobile/

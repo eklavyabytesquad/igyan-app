@@ -30,6 +30,7 @@ const navItems = [
   { id: 'explore', label: 'Explore', icon: 'magnifyingglass', route: '/(tabs)/explore' },
   { id: 'live', label: 'Live Classroom', icon: 'video.fill', route: '/live-classroom' },
   { id: 'viva-ai', label: 'Viva AI', icon: 'sparkles', route: '/viva-ai' },
+  { id: 'content-gen', label: 'Content Generator', icon: 'doc.richtext.fill', route: '/content-generator' },
   { id: 'tools', label: 'AI Tools', icon: 'cpu', route: '/tools' },
 ];
 

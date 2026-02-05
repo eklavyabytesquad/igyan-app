@@ -1,0 +1,811 @@
+/**
+ * iGyan App - Content Generator Page
+ * AI-powered document and presentation creator
+ */
+
+import React, { useState, useRef } from 'react';
+import {
+  ScrollView,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Platform,
+} from 'react-native';
+import { router } from 'expo-router';
+import { File, Paths } from 'expo-file-system/next';
+import * as Sharing from 'expo-sharing';
+import PptxGenJS from 'pptxgenjs';
+import { ThemedView } from '../../components/ThemedView';
+import { ThemedText } from '../../components/ThemedText';
+import { IconSymbol } from '../../components/IconSymbol';
+import Header from '../../components/Header';
+import { useThemeColor } from '../../hooks/useThemeColor';
+import { useSideNav } from '../../utils/SideNavContext';
+import FormatSelector from '../../components/content-generator/FormatSelector';
+import TemplateSelector from '../../components/content-generator/TemplateSelector';
+import SlidePreview from '../../components/content-generator/SlidePreview';
+import GeneratedContent from '../../components/content-generator/GeneratedContent';
+
+const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// Templates
+const templates = [
+  {
+    id: 'professional',
+    name: 'Professional',
+    colors: {
+      primary: '4472C4',
+      secondary: '5B9BD5',
+      text: '333333',
+      background: 'FFFFFF',
+      accent: 'ED7D31',
+    },
+  },
+  {
+    id: 'vibrant',
+    name: 'Vibrant',
+    colors: {
+      primary: 'FF6B6B',
+      secondary: '4ECDC4',
+      text: '2C3E50',
+      background: 'FFFFFF',
+      accent: 'FFE66D',
+    },
+  },
+];
+
+export default function ContentGeneratorPage() {
+  const { openSideNav } = useSideNav();
+  const cardColor = useThemeColor({}, 'card');
+  const textColor = useThemeColor({}, 'text');
+  const borderColor = useThemeColor({}, 'border');
+
+  // State
+  const [topic, setTopic] = useState('');
+  const [contentType, setContentType] = useState('ppt'); // ppt, pdf, shark-ppt
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(templates[0]);
+  const [editedSlides, setEditedSlides] = useState(null);
+  const [editingSlideIndex, setEditingSlideIndex] = useState(null);
+
+  // Get AI prompt based on content type
+  const getPrompt = (type, topicText) => {
+    if (type === 'shark-ppt') {
+      return {
+        system: `You are a distinguished startup pitch strategist specializing in the Indian entrepreneurial ecosystem. Create investor-ready pitch deck content.
+
+IMPORTANT GUIDELINES:
+- Use sophisticated vocabulary: "paradigm shift" not "change", "unprecedented" not "new", "catalyse" not "help", "burgeoning" not "growing", "democratise" not "make available"
+- All monetary values MUST be in Indian notation: ₹ Crores and ₹ Lakhs
+- Include realistic metrics for Indian market (TAM, SAM, ARPU, etc.)
+- Create exactly 5 slides for a 5-minute pitch
+
+Return JSON format:
+{
+  "title": "Company/Product Name",
+  "tagline": "One-line description",
+  "slides": [
+    {
+      "id": 1,
+      "title": "Company Introduction",
+      "timing": "1-2 minutes",
+      "subtitle": "Subtitle here",
+      "content": "- Bullet point 1\\n- Bullet point 2\\n- Bullet point 3",
+      "tagline": "Slide tagline",
+      "metrics": [{"value": "10L+", "label": "Users"}, {"value": "₹50Cr", "label": "Revenue"}]
+    }
+  ]
+}`,
+        user: `Create an investor pitch deck for: ${topicText}`,
+      };
+    } else if (type === 'pdf') {
+      return {
+        system: `You are a professional document writer. Create well-structured content for a PDF document.
+
+Return JSON format:
+{
+  "title": "Document Title",
+  "sections": [
+    {
+      "heading": "Section Heading",
+      "content": "Section content with multiple paragraphs..."
+    }
+  ]
+}`,
+        user: `Create a comprehensive document about: ${topicText}`,
+      };
+    } else {
+      return {
+        system: `You are a professional presentation creator. Create educational presentation content with 5-7 slides.
+
+Return JSON format:
+{
+  "title": "Presentation Title",
+  "slides": [
+    {
+      "title": "Slide Title",
+      "content": "- Bullet point 1\\n- Bullet point 2\\n- Bullet point 3"
+    }
+  ]
+}`,
+        user: `Create a presentation about: ${topicText}`,
+      };
+    }
+  };
+
+  // Generate content
+  const handleGenerate = async () => {
+    if (!topic.trim()) {
+      Alert.alert('Error', 'Please enter a topic');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGeneratedContent(null);
+    setEditedSlides(null);
+
+    try {
+      const prompt = getPrompt(contentType, topic);
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: prompt.system },
+            { role: 'user', content: prompt.user },
+          ],
+          temperature: 0.7,
+          max_tokens: 3000,
+          response_format: { type: 'json_object' },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate content');
+      }
+
+      const data = await response.json();
+      const content = JSON.parse(data.choices[0].message.content);
+
+      setGeneratedContent({
+        type: contentType,
+        ...content,
+      });
+
+      if (contentType === 'shark-ppt' && content.slides) {
+        setEditedSlides(content.slides);
+      }
+    } catch (error) {
+      console.error('Generation error:', error);
+      Alert.alert('Error', 'Failed to generate content. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Handle slide edit
+  const handleSlideEdit = (slideIndex, field, value) => {
+    if (!editedSlides) return;
+    
+    const updated = [...editedSlides];
+    updated[slideIndex] = {
+      ...updated[slideIndex],
+      [field]: value,
+    };
+    setEditedSlides(updated);
+  };
+
+  // Handle metric edit
+  const handleMetricEdit = (slideIndex, metricIndex, field, value) => {
+    if (!editedSlides) return;
+    
+    const updated = [...editedSlides];
+    const metrics = [...(updated[slideIndex].metrics || [])];
+    metrics[metricIndex] = {
+      ...metrics[metricIndex],
+      [field]: value,
+    };
+    updated[slideIndex] = {
+      ...updated[slideIndex],
+      metrics,
+    };
+    setEditedSlides(updated);
+  };
+
+  // Reset
+  const handleReset = () => {
+    setTopic('');
+    setGeneratedContent(null);
+    setEditedSlides(null);
+    setEditingSlideIndex(null);
+  };
+
+  // Generate PowerPoint using PptxGenJS
+  const generatePPTX = async () => {
+    const pptx = new PptxGenJS();
+    const template = selectedTemplate;
+    const primaryColor = template.colors.primary;
+    const secondaryColor = template.colors.secondary;
+    const textColor = template.colors.text;
+    
+    // Set presentation properties
+    pptx.author = 'iGyan App';
+    pptx.title = generatedContent?.title || 'Presentation';
+    pptx.subject = topic;
+    pptx.company = 'iGyan Education';
+    
+    // Define master slide
+    pptx.defineSlideMaster({
+      title: 'TITLE_SLIDE',
+      background: { color: primaryColor },
+      objects: [
+        { placeholder: { options: { name: 'title', type: 'title', x: 0.5, y: 2, w: 9, h: 1.5, fontSize: 44, color: 'FFFFFF', align: 'center', bold: true } } },
+        { placeholder: { options: { name: 'subtitle', type: 'body', x: 0.5, y: 3.5, w: 9, h: 1, fontSize: 24, color: 'FFFFFF', align: 'center' } } },
+      ],
+    });
+
+    pptx.defineSlideMaster({
+      title: 'CONTENT_SLIDE',
+      background: { color: 'FFFFFF' },
+      objects: [
+        { rect: { x: 0, y: 0, w: '100%', h: 0.75, fill: { color: primaryColor } } },
+        { placeholder: { options: { name: 'title', type: 'title', x: 0.5, y: 0.15, w: 9, h: 0.5, fontSize: 28, color: 'FFFFFF', bold: true } } },
+        { placeholder: { options: { name: 'body', type: 'body', x: 0.5, y: 1, w: 9, h: 5.5, fontSize: 18, color: textColor } } },
+      ],
+    });
+
+    // Title slide
+    const titleSlide = pptx.addSlide({ masterName: 'TITLE_SLIDE' });
+    titleSlide.addText(generatedContent?.title || 'Presentation', {
+      x: 0.5, y: 2, w: 9, h: 1.5,
+      fontSize: 44, color: 'FFFFFF', align: 'center', bold: true,
+    });
+    if (generatedContent?.tagline) {
+      titleSlide.addText(generatedContent.tagline, {
+        x: 0.5, y: 3.5, w: 9, h: 1,
+        fontSize: 24, color: 'FFFFFF', align: 'center', italic: true,
+      });
+    }
+    titleSlide.addText('Generated by iGyan AI', {
+      x: 0.5, y: 6.5, w: 9, h: 0.5,
+      fontSize: 14, color: 'FFFFFF', align: 'center',
+    });
+
+    // Content slides
+    const slidesData = editedSlides || generatedContent?.slides || [];
+    
+    if (contentType === 'shark-ppt' && slidesData.length > 0) {
+      slidesData.forEach((slide, index) => {
+        const contentSlide = pptx.addSlide({ masterName: 'CONTENT_SLIDE' });
+        
+        // Title
+        contentSlide.addText(slide.title, {
+          x: 0.5, y: 0.15, w: 9, h: 0.5,
+          fontSize: 28, color: 'FFFFFF', bold: true,
+        });
+        
+        // Timing badge if exists
+        if (slide.timing) {
+          contentSlide.addText(`⏱️ ${slide.timing}`, {
+            x: 8, y: 0.15, w: 1.5, h: 0.4,
+            fontSize: 12, color: 'FFFFFF', align: 'right',
+          });
+        }
+        
+        // Subtitle if exists
+        let yPos = 1;
+        if (slide.subtitle) {
+          contentSlide.addText(slide.subtitle, {
+            x: 0.5, y: yPos, w: 9, h: 0.5,
+            fontSize: 18, color: primaryColor, italic: true,
+          });
+          yPos += 0.6;
+        }
+        
+        // Content
+        const contentLines = slide.content.split('\n').filter(line => line.trim());
+        contentLines.forEach((line, lineIdx) => {
+          const isBullet = line.trim().startsWith('•') || line.trim().startsWith('-');
+          contentSlide.addText(isBullet ? line : `• ${line}`, {
+            x: 0.5, y: yPos + (lineIdx * 0.5), w: 9, h: 0.5,
+            fontSize: 16, color: textColor, bullet: false,
+          });
+        });
+        
+        // Metrics if exists
+        if (slide.metrics && slide.metrics.length > 0) {
+          const metricsY = 5;
+          slide.metrics.forEach((metric, mIdx) => {
+            const xPos = 0.5 + (mIdx * 3);
+            contentSlide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
+              x: xPos, y: metricsY, w: 2.5, h: 1.2,
+              fill: { color: primaryColor, transparency: 85 },
+              line: { color: primaryColor, width: 1 },
+            });
+            contentSlide.addText(metric.value, {
+              x: xPos, y: metricsY + 0.1, w: 2.5, h: 0.6,
+              fontSize: 24, color: primaryColor, align: 'center', bold: true,
+            });
+            contentSlide.addText(metric.label, {
+              x: xPos, y: metricsY + 0.7, w: 2.5, h: 0.4,
+              fontSize: 12, color: '666666', align: 'center',
+            });
+          });
+        }
+        
+        // Tagline if exists
+        if (slide.tagline) {
+          contentSlide.addText(`💡 ${slide.tagline}`, {
+            x: 0.5, y: 6.3, w: 9, h: 0.4,
+            fontSize: 14, color: '666666', italic: true,
+          });
+        }
+      });
+    } else if (contentType === 'pdf' && generatedContent?.sections) {
+      generatedContent.sections.forEach((section) => {
+        const contentSlide = pptx.addSlide({ masterName: 'CONTENT_SLIDE' });
+        contentSlide.addText(section.heading, {
+          x: 0.5, y: 0.15, w: 9, h: 0.5,
+          fontSize: 28, color: 'FFFFFF', bold: true,
+        });
+        
+        const contentLines = section.content.split('\n').filter(line => line.trim());
+        contentLines.forEach((line, lineIdx) => {
+          contentSlide.addText(`• ${line.replace(/^[•-]\s*/, '')}`, {
+            x: 0.5, y: 1 + (lineIdx * 0.5), w: 9, h: 0.5,
+            fontSize: 16, color: textColor,
+          });
+        });
+      });
+    } else if (generatedContent?.slides) {
+      generatedContent.slides.forEach((slide) => {
+        const contentSlide = pptx.addSlide({ masterName: 'CONTENT_SLIDE' });
+        contentSlide.addText(slide.title, {
+          x: 0.5, y: 0.15, w: 9, h: 0.5,
+          fontSize: 28, color: 'FFFFFF', bold: true,
+        });
+        
+        const contentLines = slide.content.split('\n').filter(line => line.trim());
+        contentLines.forEach((line, lineIdx) => {
+          contentSlide.addText(`• ${line.replace(/^[•-]\s*/, '')}`, {
+            x: 0.5, y: 1 + (lineIdx * 0.5), w: 9, h: 0.5,
+            fontSize: 16, color: textColor,
+          });
+        });
+      });
+    }
+
+    // Thank you slide
+    const endSlide = pptx.addSlide({ masterName: 'TITLE_SLIDE' });
+    endSlide.addText('Thank You!', {
+      x: 0.5, y: 2.5, w: 9, h: 1,
+      fontSize: 44, color: 'FFFFFF', align: 'center', bold: true,
+    });
+    endSlide.addText('Created with iGyan AI Content Generator', {
+      x: 0.5, y: 4, w: 9, h: 0.5,
+      fontSize: 18, color: 'FFFFFF', align: 'center',
+    });
+
+    return pptx;
+  };
+
+  // Handle download
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!generatedContent) {
+      Alert.alert('Error', 'No content to download');
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      // Check if sharing is available
+      const isAvailable = await Sharing.isAvailableAsync();
+      
+      // Generate PowerPoint
+      const pptx = await generatePPTX();
+      
+      // Create filename
+      const timestamp = new Date().getTime();
+      const sanitizedTitle = (generatedContent.title || 'presentation')
+        .replace(/[^a-zA-Z0-9]/g, '_')
+        .substring(0, 30);
+      const fileName = `${sanitizedTitle}_${timestamp}.pptx`;
+      
+      // Generate base64 data
+      const pptxBase64 = await pptx.write({ outputType: 'base64' });
+      
+      // Write file using expo-file-system
+      const file = new File(Paths.cache, fileName);
+      file.create();
+      
+      // Convert base64 to binary and write
+      const binaryString = atob(pptxBase64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      file.write(bytes);
+      
+      const filePath = file.uri;
+
+      if (isAvailable) {
+        // Share the file
+        await Sharing.shareAsync(filePath, {
+          mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          dialogTitle: 'Save your PowerPoint presentation',
+          UTI: 'org.openxmlformats.presentationml.presentation',
+        });
+        
+        Alert.alert(
+          'Success! 🎉',
+          'Your PowerPoint presentation has been exported!\n\nOpen it with Microsoft PowerPoint, Google Slides, or any compatible app.',
+          [{ text: 'Got it!' }]
+        );
+      } else {
+        Alert.alert(
+          'File Saved',
+          `File saved to: ${filePath}\n\nSharing is not available on this device.`,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      Alert.alert('Error', `Failed to generate PowerPoint: ${error.message}`);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <ThemedView style={styles.container}>
+      <Header
+        title="Content Generator"
+        onMenuPress={openSideNav}
+        showBack
+        onBackPress={() => router.back()}
+      />
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <View style={styles.heroIconContainer}>
+            <IconSymbol name="doc.richtext.fill" size={32} color="#fff" />
+          </View>
+          <ThemedText style={styles.heroTitle}>AI Content Generator</ThemedText>
+          <ThemedText style={styles.heroSubtitle}>
+            Create professional presentations & documents instantly
+          </ThemedText>
+        </View>
+
+        {!generatedContent ? (
+          <>
+            {/* Format Selection */}
+            <View style={[styles.section, { backgroundColor: cardColor }]}>
+              <ThemedText style={styles.sectionTitle}>Select Format</ThemedText>
+              <FormatSelector
+                selected={contentType}
+                onSelect={setContentType}
+              />
+            </View>
+
+            {/* Template Selection */}
+            <View style={[styles.section, { backgroundColor: cardColor }]}>
+              <ThemedText style={styles.sectionTitle}>Choose Template</ThemedText>
+              <TemplateSelector
+                templates={templates}
+                selected={selectedTemplate}
+                onSelect={setSelectedTemplate}
+              />
+            </View>
+
+            {/* Topic Input */}
+            <View style={[styles.section, { backgroundColor: cardColor }]}>
+              <ThemedText style={styles.sectionTitle}>
+                {contentType === 'shark-ppt' ? 'Your Startup/Idea' : 'Enter Topic'}
+              </ThemedText>
+              <TextInput
+                style={[styles.input, { borderColor, color: textColor }]}
+                placeholder={
+                  contentType === 'shark-ppt'
+                    ? 'e.g., AI-powered EdTech platform for rural India'
+                    : 'e.g., Climate Change and Its Impact'
+                }
+                placeholderTextColor="#999"
+                value={topic}
+                onChangeText={setTopic}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+
+            {/* Generate Button */}
+            <TouchableOpacity
+              style={[
+                styles.generateButton,
+                (!topic.trim() || isGenerating) && styles.buttonDisabled,
+              ]}
+              onPress={handleGenerate}
+              disabled={!topic.trim() || isGenerating}
+            >
+              {isGenerating ? (
+                <View style={styles.loadingRow}>
+                  <ActivityIndicator color="#fff" size="small" />
+                  <Text style={styles.generateButtonText}>Generating...</Text>
+                </View>
+              ) : (
+                <View style={styles.loadingRow}>
+                  <IconSymbol name="sparkles" size={20} color="#fff" />
+                  <Text style={styles.generateButtonText}>Generate Content</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            {/* Generated Content */}
+            {contentType === 'shark-ppt' && editedSlides ? (
+              <View style={styles.slidesContainer}>
+                <View style={styles.contentHeader}>
+                  <ThemedText style={styles.contentTitle}>
+                    {generatedContent.title}
+                  </ThemedText>
+                  {generatedContent.tagline && (
+                    <ThemedText style={styles.contentTagline}>
+                      {generatedContent.tagline}
+                    </ThemedText>
+                  )}
+                </View>
+
+                {editedSlides.map((slide, index) => (
+                  <SlidePreview
+                    key={slide.id}
+                    slide={slide}
+                    index={index}
+                    isEditing={editingSlideIndex === index}
+                    onEdit={() => setEditingSlideIndex(index)}
+                    onSave={() => setEditingSlideIndex(null)}
+                    onCancel={() => setEditingSlideIndex(null)}
+                    onSlideChange={(field, value) => handleSlideEdit(index, field, value)}
+                    onMetricChange={(metricIdx, field, value) =>
+                      handleMetricEdit(index, metricIdx, field, value)
+                    }
+                    template={selectedTemplate}
+                  />
+                ))}
+              </View>
+            ) : (
+              <GeneratedContent
+                content={generatedContent}
+                template={selectedTemplate}
+              />
+            )}
+
+            {/* Action Buttons */}
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.downloadButton, isDownloading && styles.disabledButton]}
+                onPress={handleDownload}
+                disabled={isDownloading}
+              >
+                {isDownloading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <IconSymbol name="arrow.down.circle.fill" size={20} color="#fff" />
+                )}
+                <Text style={styles.actionButtonText}>
+                  {isDownloading ? 'Exporting...' : 'Download'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionButton, styles.resetButton]}
+                onPress={handleReset}
+              >
+                <IconSymbol name="arrow.counterclockwise" size={20} color="#00abf4" />
+                <Text style={[styles.actionButtonText, { color: '#00abf4' }]}>
+                  Start Over
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
+        {/* Features Info */}
+        {!generatedContent && (
+          <View style={styles.featuresSection}>
+            <ThemedText style={styles.featuresTitle}>✨ Features</ThemedText>
+            <View style={styles.featuresList}>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureEmoji}>🎯</Text>
+                <Text style={styles.featureText}>AI-powered content</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureEmoji}>📊</Text>
+                <Text style={styles.featureText}>Multiple formats</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureEmoji}>✏️</Text>
+                <Text style={styles.featureText}>Live editing</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureEmoji}>🦈</Text>
+                <Text style={styles.featureText}>Investor pitch mode</Text>
+              </View>
+            </View>
+          </View>
+        )}
+      </ScrollView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  heroSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingVertical: 20,
+  },
+  heroIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: '#00abf4',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  heroTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  heroSubtitle: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+  },
+  section: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 15,
+    minHeight: 80,
+  },
+  generateButton: {
+    backgroundColor: '#00abf4',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  loadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  generateButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  slidesContainer: {
+    marginBottom: 16,
+  },
+  contentHeader: {
+    marginBottom: 16,
+  },
+  contentTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  contentTagline: {
+    fontSize: 14,
+    color: '#00abf4',
+    fontStyle: 'italic',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
+    gap: 8,
+  },
+  downloadButton: {
+    backgroundColor: '#10b981',
+  },
+  disabledButton: {
+    opacity: 0.6,
+  },
+  resetButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#00abf4',
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  featuresSection: {
+    marginTop: 8,
+  },
+  featuresTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  featuresList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 171, 244, 0.1)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    gap: 6,
+  },
+  featureEmoji: {
+    fontSize: 14,
+  },
+  featureText: {
+    fontSize: 13,
+    color: '#00abf4',
+    fontWeight: '500',
+  },
+});
