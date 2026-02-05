@@ -14,13 +14,6 @@ import { homeStyles } from '../../styles/pages/homeStyles';
 import { useAuth } from '../../utils/AuthContext';
 import { supabase } from '../../utils/supabase';
 
-// Sample data for featured courses
-const featuredCourses = [
-  { id: 1, title: 'React Native Mastery', instructor: 'John Doe', progress: 45 },
-  { id: 2, title: 'Python for Beginners', instructor: 'Jane Smith', progress: 0 },
-  { id: 3, title: 'Web Development', instructor: 'Mike Wilson', progress: 78 },
-];
-
 const INSTITUTIONAL_ROLES = ['super_admin', 'co_admin', 'student', 'faculty'];
 
 export default function HomePage() {
@@ -78,7 +71,10 @@ export default function HomePage() {
           <Text style={homeStyles.featuredDescription}>
             Access 1000+ courses from industry experts. Begin your journey to success.
           </Text>
-          <TouchableOpacity style={homeStyles.featuredButton}>
+          <TouchableOpacity 
+            style={homeStyles.featuredButton}
+            onPress={() => router.push('/(tabs)/courses')}
+          >
             <Text style={homeStyles.featuredButtonText}>Explore Courses</Text>
           </TouchableOpacity>
         </View>
@@ -100,49 +96,39 @@ export default function HomePage() {
           </View>
         </TouchableOpacity>
 
-        {/* Stats Section */}
-        <View style={homeStyles.statsContainer}>
-          <View style={[homeStyles.statItem, { backgroundColor: cardColor }]}>
-            <ThemedText style={homeStyles.statNumber}>12</ThemedText>
-            <ThemedText style={homeStyles.statLabel}>Courses</ThemedText>
+        {/* Viva AI Banner */}
+        <TouchableOpacity 
+          style={[homeStyles.featuredCard, { backgroundColor: '#0891b2', marginTop: 16 }]}
+          onPress={() => router.push('/viva-ai')}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <Text style={{ fontSize: 32, marginRight: 12 }}>🦈</Text>
+            <Text style={[homeStyles.featuredTitle, { flex: 1 }]}>Viva AI</Text>
           </View>
-          <View style={[homeStyles.statItem, { backgroundColor: cardColor }]}>
-            <ThemedText style={homeStyles.statNumber}>48</ThemedText>
-            <ThemedText style={homeStyles.statLabel}>Hours</ThemedText>
+          <Text style={homeStyles.featuredDescription}>
+            Create pitch decks and practice your pitch with AI-powered feedback
+          </Text>
+          <View style={[homeStyles.featuredButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+            <Text style={homeStyles.featuredButtonText}>Start Pitching →</Text>
           </View>
-          <View style={[homeStyles.statItem, { backgroundColor: cardColor }]}>
-            <ThemedText style={homeStyles.statNumber}>3</ThemedText>
-            <ThemedText style={homeStyles.statLabel}>Certificates</ThemedText>
-          </View>
-        </View>
+        </TouchableOpacity>
 
-        {/* Continue Learning Section */}
-        <ThemedText style={homeStyles.sectionTitle}>Continue Learning</ThemedText>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {featuredCourses.map((course) => (
-            <TouchableOpacity key={course.id}>
-              <View style={[homeStyles.courseCard, { backgroundColor: cardColor }]}>
-                <View style={homeStyles.courseImage} />
-                <ThemedText style={homeStyles.courseTitle}>{course.title}</ThemedText>
-                <ThemedText style={homeStyles.courseInstructor}>{course.instructor}</ThemedText>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Popular Categories */}
-        <ThemedText style={homeStyles.sectionTitle}>Popular Categories</ThemedText>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          {['Programming', 'Design', 'Business', 'Marketing'].map((category, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[homeStyles.courseCard, { backgroundColor: cardColor, width: '48%', marginRight: 0 }]}
-            >
-              <IconSymbol name="graduationcap.fill" size={32} color="#1E88E5" />
-              <ThemedText style={[homeStyles.courseTitle, { marginTop: 8 }]}>{category}</ThemedText>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {/* AI Tools Banner */}
+        <TouchableOpacity 
+          style={[homeStyles.featuredCard, { backgroundColor: '#059669', marginTop: 16 }]}
+          onPress={() => router.push('/tools')}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <Text style={{ fontSize: 32, marginRight: 12 }}>🤖</Text>
+            <Text style={[homeStyles.featuredTitle, { flex: 1 }]}>AI Learning Tools</Text>
+          </View>
+          <Text style={homeStyles.featuredDescription}>
+            Code tutor, text summarizer, and more AI-powered tools
+          </Text>
+          <View style={[homeStyles.featuredButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+            <Text style={homeStyles.featuredButtonText}>Explore Tools →</Text>
+          </View>
+        </TouchableOpacity>
       </ScrollView>
     </ThemedView>
   );

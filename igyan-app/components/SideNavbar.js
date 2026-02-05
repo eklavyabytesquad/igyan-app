@@ -22,14 +22,15 @@ import { useAuth } from '../utils/AuthContext';
 import { Colors, Spacing, FontSizes } from '../constants/theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const DRAWER_WIDTH = Math.min(300, SCREEN_WIDTH * 0.8);
+const DRAWER_WIDTH = Math.min(280, SCREEN_WIDTH * 0.78);
 
 const navItems = [
   { id: 'home', label: 'Home', icon: 'house.fill', route: '/(tabs)/home' },
   { id: 'courses', label: 'My Courses', icon: 'book.fill', route: '/(tabs)/courses' },
   { id: 'explore', label: 'Explore', icon: 'magnifyingglass', route: '/(tabs)/explore' },
   { id: 'live', label: 'Live Classroom', icon: 'video.fill', route: '/live-classroom' },
-  { id: 'tools', label: 'AI Tools', icon: 'wand.and.stars', route: '/tools' },
+  { id: 'viva-ai', label: 'Viva AI', icon: 'sparkles', route: '/viva-ai' },
+  { id: 'tools', label: 'AI Tools', icon: 'cpu', route: '/tools' },
 ];
 
 const bottomNavItems = [
@@ -172,10 +173,10 @@ export default function SideNavbar({ isOpen, onClose }) {
               activeOpacity={0.7}
             >
               <View style={styles.navIconContainer}>
-                <IconSymbol name={item.icon} size={22} color="#00abf4" />
+                <IconSymbol name={item.icon} size={18} color="#00abf4" />
               </View>
               <Text style={styles.navLabel}>{item.label}</Text>
-              <IconSymbol name="chevron.right" size={16} color="#7a8b9c" />
+              <IconSymbol name="chevron.right" size={14} color="#7a8b9c" />
             </TouchableOpacity>
           ))}
         </View>
@@ -195,10 +196,10 @@ export default function SideNavbar({ isOpen, onClose }) {
               activeOpacity={0.7}
             >
               <View style={styles.navIconContainer}>
-                <IconSymbol name={item.icon} size={22} color="#7a8b9c" />
+                <IconSymbol name={item.icon} size={18} color="#7a8b9c" />
               </View>
               <Text style={[styles.navLabel, { color: '#a0aab4' }]}>{item.label}</Text>
-              <IconSymbol name="chevron.right" size={16} color="#7a8b9c" />
+              <IconSymbol name="chevron.right" size={14} color="#7a8b9c" />
             </TouchableOpacity>
           ))}
 
@@ -209,7 +210,7 @@ export default function SideNavbar({ isOpen, onClose }) {
             activeOpacity={0.7}
           >
             <View style={[styles.navIconContainer, styles.logoutIconContainer]}>
-              <IconSymbol name="rectangle.portrait.and.arrow.right" size={22} color="#ef4444" />
+              <IconSymbol name="rectangle.portrait.and.arrow.right" size={18} color="#ef4444" />
             </View>
             <Text style={[styles.navLabel, styles.logoutLabel]}>Sign Out</Text>
           </TouchableOpacity>
@@ -261,12 +262,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 14,
     backgroundColor: '#135167',
     borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 24,
+    borderBottomRightRadius: 20,
   },
   profileContainer: {
     flexDirection: 'row',
@@ -277,16 +278,16 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     borderWidth: 2,
     borderColor: '#00abf4',
   },
   avatarPlaceholder: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: '#00abf4',
     alignItems: 'center',
     justifyContent: 'center',
@@ -294,40 +295,40 @@ const styles = StyleSheet.create({
     borderColor: '#f8fafc',
   },
   avatarText: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: '700',
     color: '#ffffff',
   },
   onlineIndicator: {
     position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    bottom: 1,
+    right: 1,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: '#22c55e',
     borderWidth: 2,
     borderColor: '#135167',
   },
   userInfo: {
-    marginLeft: 14,
+    marginLeft: 12,
     flex: 1,
   },
   userName: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '700',
     color: '#f8fafc',
     marginBottom: 2,
   },
   userRole: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#00abf4',
     fontWeight: '500',
   },
   closeButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -336,33 +337,33 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: '#135167',
-    marginHorizontal: 16,
-    marginVertical: 8,
+    marginHorizontal: 14,
+    marginVertical: 6,
   },
   navSection: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
   },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginVertical: 2,
+    paddingVertical: 11,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    marginVertical: 1,
   },
   navIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 8,
     backgroundColor: 'rgba(0, 171, 244, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: 12,
   },
   navLabel: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     color: '#f8fafc',
   },
@@ -370,11 +371,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bottomSection: {
-    paddingHorizontal: 12,
-    paddingBottom: 8,
+    paddingHorizontal: 10,
+    paddingBottom: 6,
   },
   logoutItem: {
-    marginTop: 8,
+    marginTop: 6,
     backgroundColor: 'rgba(239, 68, 68, 0.08)',
   },
   logoutIconContainer: {
@@ -385,14 +386,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   footer: {
-    paddingVertical: 16,
+    paddingVertical: 12,
     alignItems: 'center',
     borderTopWidth: 1,
     borderTopColor: '#135167',
-    marginHorizontal: 16,
+    marginHorizontal: 14,
   },
   footerText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#7a8b9c',
   },
 });
