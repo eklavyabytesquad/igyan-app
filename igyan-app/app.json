@@ -4,7 +4,7 @@
     "slug": "igyan-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo.png",
     "scheme": "igyanapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -58,6 +58,12 @@
     ],
     "experiments": {
       "typedRoutes": false
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1f50e249-9eb4-4dce-8681-7efc28b393f2"
+      }
     }
   }
 }
