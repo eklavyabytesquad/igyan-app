@@ -9,7 +9,9 @@ import { useRouter } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
+import Header from '../../components/Header';
 import { useThemeColor } from '../../hooks/useThemeColor';
+import { useSideNav } from '../../utils/SideNavContext';
 import { exploreStyles } from '../../styles/pages/exploreStyles';
 
 const tools = [
@@ -65,6 +67,7 @@ const tools = [
 
 export default function ToolsPage() {
   const router = useRouter();
+  const { openSideNav } = useSideNav();
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
@@ -80,25 +83,22 @@ export default function ToolsPage() {
 
   return (
     <ThemedView style={exploreStyles.container}>
+      <Header 
+        title="Learning Tools" 
+        onMenuPress={openSideNav} 
+        showBack 
+        onBackPress={() => router.back()} 
+      />
       <ScrollView>
-        {/* Header */}
-        <View style={exploreStyles.header}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-            <TouchableOpacity 
-              onPress={() => router.back()}
-              style={{ marginRight: 12, padding: 8 }}
-            >
-              <IconSymbol name="chevron.left" size={24} color={textColor} />
-            </TouchableOpacity>
-            <ThemedText style={exploreStyles.headerTitle}>Learning Tools</ThemedText>
-          </View>
+        {/* Tools description */}
+        <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
           <ThemedText style={{ fontSize: 14, color: '#999', marginBottom: 16 }}>
             Powerful tools to enhance your learning experience
           </ThemedText>
         </View>
 
         {/* Tools Grid */}
-        <View style={{ padding: 16 }}>
+        <View style={{ padding: 16, paddingTop: 0 }}>
           {tools.map((tool) => (
             <TouchableOpacity 
               key={tool.id}

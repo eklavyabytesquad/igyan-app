@@ -8,12 +8,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
+import Header from '../../components/Header';
 import { useThemeColor } from '../../hooks/useThemeColor';
+import { useSideNav } from '../../utils/SideNavContext';
 import { fetchCourseById, getGoogleDrivePreviewUrl } from '../../services/coursesService';
 
 export default function CourseDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { openSideNav } = useSideNav();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState('english');
@@ -43,8 +46,14 @@ export default function CourseDetailScreen() {
   if (loading) {
     return (
       <ThemedView style={styles.container}>
+        <Header 
+          title="Course Details" 
+          onMenuPress={openSideNav} 
+          showBack 
+          onBackPress={() => router.back()} 
+        />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#1E88E5" />
+          <ActivityIndicator size="large" color="#00abf4" />
           <ThemedText style={{ marginTop: 16 }}>Loading course...</ThemedText>
         </View>
       </ThemedView>
@@ -54,6 +63,12 @@ export default function CourseDetailScreen() {
   if (!course) {
     return (
       <ThemedView style={styles.container}>
+        <Header 
+          title="Course Details" 
+          onMenuPress={openSideNav} 
+          showBack 
+          onBackPress={() => router.back()} 
+        />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ThemedText style={{ fontSize: 18 }}>Course not found</ThemedText>
         </View>
@@ -87,6 +102,12 @@ export default function CourseDetailScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <Header 
+        title={course.title || 'Course Details'} 
+        onMenuPress={openSideNav} 
+        showBack 
+        onBackPress={() => router.back()} 
+      />
       <ScrollView>
         {/* Course Header */}
         <View style={[styles.headerImage, { justifyContent: 'center', alignItems: 'center' }]}>

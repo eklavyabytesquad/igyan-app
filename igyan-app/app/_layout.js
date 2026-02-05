@@ -4,13 +4,17 @@
  */
 
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '../hooks/useColorScheme';
 import { AuthProvider } from '../utils/AuthContext';
+import { SideNavProvider, useSideNav } from '../utils/SideNavContext';
+import SideNavbar from '../components/SideNavbar';
 
 // Custom theme for iGyan
 const iGyanLightTheme = {
@@ -41,12 +45,14 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-export default function RootLayout() {
+// Inner layout component that can access SideNav context
+function RootLayoutContent() {
   const colorScheme = useColorScheme();
+  const { isOpen, closeSideNav } = useSideNav();
 
   return (
-    <AuthProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? iGyanDarkTheme : iGyanLightTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? iGyanDarkTheme : iGyanLightTheme}>
+      <View style={styles.container}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="welcome" options={{ headerShown: false }} />
@@ -54,13 +60,33 @@ export default function RootLayout() {
           <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
           <Stack.Screen name="signup" options={{ presentation: 'modal', headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="course/[id]" options={{ title: 'Course Details', headerShown: true }} />
-          <Stack.Screen name="lesson/[id]" options={{ title: 'Lesson', headerShown: true }} />
-          <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: true }} />
-          <Stack.Screen name="live-classroom" options={{ title: 'Live Classroom', headerShown: true }} />
+          <Stack.Screen name="course/[id]" options={{ title: 'Course Details', headerShown: false }} />
+          <Stack.Screen name="lesson/[id]" options={{ title: 'Lesson', headerShown: false }} />
+          <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: false }} />
+          <Stack.Screen name="live-classroom" options={{ title: 'Live Classroom', headerShown: false }} />
+          <Stack.Screen name="tools" options={{ headerShown: false }} />
         </Stack>
+        <SideNavbar isOpen={isOpen} onClose={closeSideNav} />
         <StatusBar style="light" />
-      </ThemeProvider>
-    </AuthProvider>
+      </View>
+    </ThemeProvider>
   );
 }
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+        <SideNavProvider>
+          <RootLayoutContent />
+        </SideNavProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

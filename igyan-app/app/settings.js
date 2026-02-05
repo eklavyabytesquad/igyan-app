@@ -3,84 +3,99 @@
  */
 
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Switch } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Switch, ScrollView } from 'react-native';
+import { router } from 'expo-router';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
 import { IconSymbol } from '../components/IconSymbol';
+import Header from '../components/Header';
 import { useThemeColor } from '../hooks/useThemeColor';
+import { useSideNav } from '../utils/SideNavContext';
 
 export default function SettingsScreen() {
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
+  const { openSideNav } = useSideNav();
 
   const [notifications, setNotifications] = React.useState(true);
   const [darkMode, setDarkMode] = React.useState(false);
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.section}>
-        <ThemedText style={styles.sectionTitle}>Preferences</ThemedText>
+      <Header 
+        title="Settings" 
+        onMenuPress={openSideNav} 
+        showBack 
+        onBackPress={() => router.back()} 
+      />
+      <ScrollView style={styles.content}>
+        <View style={styles.section}>
+          <ThemedText style={styles.sectionTitle}>Preferences</ThemedText>
         
-        <View style={[styles.settingItem, { backgroundColor: cardColor }]}>
-          <IconSymbol name="bell.fill" size={24} color="#1E88E5" />
-          <ThemedText style={styles.settingText}>Push Notifications</ThemedText>
-          <Switch
-            value={notifications}
-            onValueChange={setNotifications}
-            trackColor={{ false: '#767577', true: '#1E88E5' }}
-          />
+          <View style={[styles.settingItem, { backgroundColor: cardColor }]}>
+            <IconSymbol name="bell.fill" size={24} color="#00abf4" />
+            <ThemedText style={styles.settingText}>Push Notifications</ThemedText>
+            <Switch
+              value={notifications}
+              onValueChange={setNotifications}
+              trackColor={{ false: '#767577', true: '#00abf4' }}
+            />
+          </View>
+
+          <View style={[styles.settingItem, { backgroundColor: cardColor }]}>
+            <IconSymbol name="star.fill" size={24} color="#00abf4" />
+            <ThemedText style={styles.settingText}>Dark Mode</ThemedText>
+            <Switch
+              value={darkMode}
+              onValueChange={setDarkMode}
+              trackColor={{ false: '#767577', true: '#00abf4' }}
+            />
+          </View>
         </View>
 
-        <View style={[styles.settingItem, { backgroundColor: cardColor }]}>
-          <IconSymbol name="star.fill" size={24} color="#1E88E5" />
-          <ThemedText style={styles.settingText}>Dark Mode</ThemedText>
-          <Switch
-            value={darkMode}
-            onValueChange={setDarkMode}
-            trackColor={{ false: '#767577', true: '#1E88E5' }}
-          />
+        <View style={styles.section}>
+          <ThemedText style={styles.sectionTitle}>Account</ThemedText>
+        
+          <TouchableOpacity style={[styles.settingItem, { backgroundColor: cardColor }]}>
+            <IconSymbol name="person.fill" size={24} color="#00abf4" />
+            <ThemedText style={styles.settingText}>Edit Profile</ThemedText>
+            <IconSymbol name="chevron.right" size={20} color={textColor} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.settingItem, { backgroundColor: cardColor }]}>
+            <IconSymbol name="gear" size={24} color="#00abf4" />
+            <ThemedText style={styles.settingText}>Privacy Settings</ThemedText>
+            <IconSymbol name="chevron.right" size={20} color={textColor} />
+          </TouchableOpacity>
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <ThemedText style={styles.sectionTitle}>Account</ThemedText>
+        <View style={styles.section}>
+          <ThemedText style={styles.sectionTitle}>Support</ThemedText>
         
-        <TouchableOpacity style={[styles.settingItem, { backgroundColor: cardColor }]}>
-          <IconSymbol name="person.fill" size={24} color="#1E88E5" />
-          <ThemedText style={styles.settingText}>Edit Profile</ThemedText>
-          <IconSymbol name="chevron.right" size={20} color={textColor} />
-        </TouchableOpacity>
+          <TouchableOpacity style={[styles.settingItem, { backgroundColor: cardColor }]}>
+            <IconSymbol name="book.fill" size={24} color="#00abf4" />
+            <ThemedText style={styles.settingText}>Help Center</ThemedText>
+            <IconSymbol name="chevron.right" size={20} color={textColor} />
+          </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.settingItem, { backgroundColor: cardColor }]}>
-          <IconSymbol name="gear" size={24} color="#1E88E5" />
-          <ThemedText style={styles.settingText}>Privacy Settings</ThemedText>
-          <IconSymbol name="chevron.right" size={20} color={textColor} />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={[styles.settingItem, { backgroundColor: cardColor }]}>
+            <IconSymbol name="paperplane.fill" size={24} color="#00abf4" />
+            <ThemedText style={styles.settingText}>Contact Us</ThemedText>
+            <IconSymbol name="chevron.right" size={20} color={textColor} />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.section}>
-        <ThemedText style={styles.sectionTitle}>Support</ThemedText>
-        
-        <TouchableOpacity style={[styles.settingItem, { backgroundColor: cardColor }]}>
-          <IconSymbol name="book.fill" size={24} color="#1E88E5" />
-          <ThemedText style={styles.settingText}>Help Center</ThemedText>
-          <IconSymbol name="chevron.right" size={20} color={textColor} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.settingItem, { backgroundColor: cardColor }]}>
-          <IconSymbol name="paperplane.fill" size={24} color="#1E88E5" />
-          <ThemedText style={styles.settingText}>Contact Us</ThemedText>
-          <IconSymbol name="chevron.right" size={20} color={textColor} />
-        </TouchableOpacity>
-      </View>
-
-      <ThemedText style={styles.version}>iGyan v1.0.0</ThemedText>
+        <ThemedText style={styles.version}>iGyan v1.0.0</ThemedText>
+      </ScrollView>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  content: {
     flex: 1,
     padding: 16,
   },
@@ -108,6 +123,7 @@ const styles = StyleSheet.create({
   version: {
     textAlign: 'center',
     opacity: 0.5,
-    marginTop: 'auto',
+    marginTop: 24,
+    marginBottom: 24,
   },
 });

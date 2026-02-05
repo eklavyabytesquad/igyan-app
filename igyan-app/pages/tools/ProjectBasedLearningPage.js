@@ -9,7 +9,9 @@ import { useRouter } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
+import Header from '../../components/Header';
 import { useThemeColor } from '../../hooks/useThemeColor';
+import { useSideNav } from '../../utils/SideNavContext';
 
 const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
 
@@ -19,6 +21,7 @@ const DURATION_OPTIONS = ['1-2 weeks', '2-4 weeks', '1-2 months', '2+ months'];
 export default function ProjectBasedLearningPage() {
   const router = useRouter();
   const scrollViewRef = useRef(null);
+  const { openSideNav } = useSideNav();
   const [formData, setFormData] = useState({
     topic: '',
     skillLevel: 'beginner',
@@ -153,33 +156,13 @@ Return ONLY valid JSON.`;
   return (
     <ThemedView style={{ flex: 1 }}>
       {/* Header */}
-      <View style={{
-        backgroundColor: cardColor,
-        borderBottomWidth: 1,
-        borderBottomColor: borderColor,
-        paddingTop: 12,
-        paddingHorizontal: 16,
-        paddingBottom: 12,
-      }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-            <TouchableOpacity 
-              onPress={() => router.back()}
-              style={{ marginRight: 12, padding: 4 }}
-            >
-              <IconSymbol name="chevron.left" size={24} color={textColor} />
-            </TouchableOpacity>
-            <View style={{ flex: 1 }}>
-              <ThemedText style={{ fontSize: 20, fontWeight: '700' }}>
-                Project-Based Learning
-              </ThemedText>
-              <ThemedText style={{ fontSize: 13, color: '#999' }}>
-                Discover perfect projects
-              </ThemedText>
-            </View>
-          </View>
-
-          {projects && (
+      <Header 
+        title="Project-Based Learning" 
+        onMenuPress={openSideNav} 
+        showBack 
+        onBackPress={() => router.back()} 
+        rightComponent={
+          projects ? (
             <TouchableOpacity
               onPress={resetForm}
               style={{
@@ -195,9 +178,9 @@ Return ONLY valid JSON.`;
                 New Search
               </ThemedText>
             </TouchableOpacity>
-          )}
-        </View>
-      </View>
+          ) : null
+        }
+      />
 
       <ScrollView
         ref={scrollViewRef}

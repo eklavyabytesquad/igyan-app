@@ -9,7 +9,9 @@ import { useRouter } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
+import Header from '../../components/Header';
 import { useThemeColor } from '../../hooks/useThemeColor';
+import { useSideNav } from '../../utils/SideNavContext';
 
 const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
 
@@ -42,6 +44,7 @@ const STARTER_PROMPTS = [
 export default function CodeTutorPage() {
   const router = useRouter();
   const scrollViewRef = useRef(null);
+  const { openSideNav } = useSideNav();
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -198,32 +201,12 @@ IMPORTANT:
   return (
     <ThemedView style={{ flex: 1 }}>
       {/* Header */}
-      <View style={{
-        backgroundColor: cardColor,
-        borderBottomWidth: 1,
-        borderBottomColor: borderColor,
-        paddingTop: 12,
-        paddingHorizontal: 16,
-        paddingBottom: 12,
-      }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-            <TouchableOpacity 
-              onPress={() => router.back()}
-              style={{ marginRight: 12, padding: 4 }}
-            >
-              <IconSymbol name="chevron.left" size={24} color={textColor} />
-            </TouchableOpacity>
-            <View style={{ flex: 1 }}>
-              <ThemedText style={{ fontSize: 20, fontWeight: '700' }}>
-                Code Tutor
-              </ThemedText>
-              <ThemedText style={{ fontSize: 13, color: '#999' }}>
-                AI-powered coding teacher
-              </ThemedText>
-            </View>
-          </View>
-
+      <Header 
+        title="Code Tutor" 
+        onMenuPress={openSideNav} 
+        showBack 
+        onBackPress={() => router.back()} 
+        rightComponent={
           <TouchableOpacity
             onPress={() => setShowLanguagePicker(!showLanguagePicker)}
             style={{
@@ -239,43 +222,44 @@ IMPORTANT:
               {PROGRAMMING_LANGUAGES.find(l => l.value === selectedLanguage)?.label}
             </ThemedText>
           </TouchableOpacity>
-        </View>
+        }
+      />
 
-        {/* Language Picker */}
-        {showLanguagePicker && (
-          <View style={{
-            backgroundColor: cardColor,
-            borderRadius: 12,
-            borderWidth: 1,
-            borderColor: borderColor,
-            marginTop: 12,
-            maxHeight: 200,
-          }}>
-            <ScrollView>
-              {PROGRAMMING_LANGUAGES.map((lang) => (
-                <TouchableOpacity
-                  key={lang.value}
-                  onPress={() => handleLanguageChange(lang.value)}
-                  style={{
-                    padding: 12,
-                    borderBottomWidth: 1,
-                    borderBottomColor: borderColor,
-                    backgroundColor: selectedLanguage === lang.value ? '#3B82F6' + '10' : 'transparent',
-                  }}
-                >
-                  <ThemedText style={{ 
-                    fontSize: 15,
-                    color: selectedLanguage === lang.value ? '#3B82F6' : textColor,
-                    fontWeight: selectedLanguage === lang.value ? '600' : '400',
-                  }}>
-                    {lang.label}
-                  </ThemedText>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-      </View>
+      {/* Language Picker */}
+      {showLanguagePicker && (
+        <View style={{
+          backgroundColor: cardColor,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: borderColor,
+          marginHorizontal: 16,
+          marginTop: 8,
+          maxHeight: 200,
+        }}>
+          <ScrollView>
+            {PROGRAMMING_LANGUAGES.map((lang) => (
+              <TouchableOpacity
+                key={lang.value}
+                onPress={() => handleLanguageChange(lang.value)}
+                style={{
+                  padding: 12,
+                  borderBottomWidth: 1,
+                  borderBottomColor: borderColor,
+                  backgroundColor: selectedLanguage === lang.value ? '#3B82F6' + '10' : 'transparent',
+                }}
+              >
+                <ThemedText style={{ 
+                  fontSize: 15,
+                  color: selectedLanguage === lang.value ? '#3B82F6' : textColor,
+                  fontWeight: selectedLanguage === lang.value ? '600' : '400',
+                }}>
+                  {lang.label}
+                </ThemedText>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
 
       {/* Messages */}
       <ScrollView

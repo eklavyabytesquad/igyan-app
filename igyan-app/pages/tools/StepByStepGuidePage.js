@@ -9,7 +9,9 @@ import { useRouter } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
+import Header from '../../components/Header';
 import { useThemeColor } from '../../hooks/useThemeColor';
+import { useSideNav } from '../../utils/SideNavContext';
 
 const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
 
@@ -43,6 +45,7 @@ const DETAIL_LEVEL_OPTIONS = [
 export default function StepByStepGuidePage() {
   const router = useRouter();
   const scrollViewRef = useRef(null);
+  const { openSideNav } = useSideNav();
   const [formData, setFormData] = useState({
     topic: '',
     goal: '',
@@ -182,33 +185,13 @@ Provide ONLY valid JSON, no additional commentary.`;
   return (
     <ThemedView style={{ flex: 1 }}>
       {/* Header */}
-      <View style={{
-        backgroundColor: cardColor,
-        borderBottomWidth: 1,
-        borderBottomColor: borderColor,
-        paddingTop: 12,
-        paddingHorizontal: 16,
-        paddingBottom: 12,
-      }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-            <TouchableOpacity 
-              onPress={() => router.back()}
-              style={{ marginRight: 12, padding: 4 }}
-            >
-              <IconSymbol name="chevron.left" size={24} color={textColor} />
-            </TouchableOpacity>
-            <View style={{ flex: 1 }}>
-              <ThemedText style={{ fontSize: 20, fontWeight: '700' }}>
-                Step-by-Step Guide
-              </ThemedText>
-              <ThemedText style={{ fontSize: 13, color: '#999' }}>
-                Learning journey architect
-              </ThemedText>
-            </View>
-          </View>
-
-          {guide && (
+      <Header 
+        title="Step-by-Step Guide" 
+        onMenuPress={openSideNav} 
+        showBack 
+        onBackPress={() => router.back()} 
+        rightComponent={
+          guide ? (
             <TouchableOpacity
               onPress={resetForm}
               style={{
@@ -224,9 +207,9 @@ Provide ONLY valid JSON, no additional commentary.`;
                 New Guide
               </ThemedText>
             </TouchableOpacity>
-          )}
-        </View>
-      </View>
+          ) : null
+        }
+      />
 
       <ScrollView
         ref={scrollViewRef}

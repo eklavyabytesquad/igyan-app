@@ -4,16 +4,25 @@
 
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
+import Header from '../../components/Header';
+import { useSideNav } from '../../utils/SideNavContext';
 
 export default function LessonScreen() {
   const { id } = useLocalSearchParams();
+  const { openSideNav } = useSideNav();
 
   return (
     <ThemedView style={styles.container}>
+      <Header 
+        title="Lesson" 
+        onMenuPress={openSideNav} 
+        showBack 
+        onBackPress={() => router.back()} 
+      />
       {/* Video Player Placeholder */}
       <View style={styles.videoPlayer}>
         <TouchableOpacity style={styles.playButton}>
@@ -32,7 +41,7 @@ export default function LessonScreen() {
         {/* Navigation Buttons */}
         <View style={styles.navButtons}>
           <TouchableOpacity style={styles.navButton}>
-            <IconSymbol name="chevron.left.forwardslash.chevron.right" size={20} color="#1E88E5" />
+            <IconSymbol name="chevron.left.forwardslash.chevron.right" size={20} color="#00abf4" />
             <ThemedText style={styles.navButtonText}>Previous</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.navButton, styles.nextButton]}>

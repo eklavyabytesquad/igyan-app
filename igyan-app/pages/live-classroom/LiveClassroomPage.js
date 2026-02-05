@@ -6,10 +6,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { router } from 'expo-router';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
 import { IconSymbol } from '../../components/IconSymbol';
+import Header from '../../components/Header';
 import { useAuth } from '../../utils/AuthContext';
+import { useSideNav } from '../../utils/SideNavContext';
 
 const API_BASE_URL = 'https://igyan-meets.onrender.com';
 const API_KEY = 'zQgLY2TzzmgKA0Ge98sTWYaWkxfz3b1ltV_rcUqHSDw';
@@ -18,6 +21,7 @@ const ALLOWED_ROLES = ['super_admin', 'co_admin', 'faculty', 'student', 'b2c_stu
 
 export default function LiveClassroomPage() {
   const { user } = useAuth();
+  const { openSideNav } = useSideNav();
   const [inMeeting, setInMeeting] = useState(false);
   const [currentRoomId, setCurrentRoomId] = useState(null);
   const [roomName, setRoomName] = useState('');
@@ -29,6 +33,12 @@ export default function LiveClassroomPage() {
   if (!user || !ALLOWED_ROLES.includes(user.role)) {
     return (
       <ThemedView style={styles.container}>
+        <Header 
+          title="Live Classroom" 
+          onMenuPress={openSideNav} 
+          showBack 
+          onBackPress={() => router.back()} 
+        />
         <View style={styles.accessDenied}>
           <IconSymbol name="xmark.circle.fill" size={64} color="#ff5252" />
           <Text style={styles.accessDeniedTitle}>Access Denied</Text>
@@ -173,6 +183,12 @@ export default function LiveClassroomPage() {
   if (showNativeView) {
     return (
       <ThemedView style={styles.container}>
+        <Header 
+          title="Live Classroom" 
+          onMenuPress={openSideNav} 
+          showBack 
+          onBackPress={() => router.back()} 
+        />
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Header */}
           <View style={styles.header}>
