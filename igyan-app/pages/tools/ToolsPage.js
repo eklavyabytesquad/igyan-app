@@ -16,6 +16,22 @@ import { exploreStyles } from '../../styles/pages/exploreStyles';
 
 const tools = [
   {
+    id: 'quiz-me',
+    title: 'Quiz Me',
+    description: 'AI-powered quiz generation for students',
+    icon: 'questionmark.circle.fill',
+    color: '#8B5CF6',
+    route: '/quiz-me',
+  },
+  {
+    id: 'teacher-prep',
+    title: 'Teacher Prep',
+    description: 'AI-powered preparation for educators',
+    icon: 'graduationcap.fill',
+    color: '#10B981',
+    route: '/teacher-prep',
+  },
+  {
     id: 'code-tutor',
     title: 'Code Tutor',
     description: 'AI-powered coding teacher for all programming languages',
@@ -28,7 +44,7 @@ const tools = [
     title: 'Project-Based Learning',
     description: 'Get personalized project recommendations',
     icon: 'cube.box.fill',
-    color: '#10B981',
+    color: '#F97316',
     route: '/tools/project-learning',
   },
   {
@@ -47,22 +63,6 @@ const tools = [
     color: '#06B6D4',
     route: '/tools/text-summarizer',
   },
-  {
-    id: 'note-taking',
-    title: 'Smart Notes',
-    description: 'AI-enhanced note-taking with auto-summarization',
-    icon: 'doc.text.fill',
-    color: '#EC4899',
-    route: '/tools/notes',
-  },
-  {
-    id: 'calculator',
-    title: 'Scientific Calculator',
-    description: 'Advanced calculator for math and science',
-    icon: 'function',
-    color: '#06B6D4',
-    route: '/tools/calculator',
-  },
 ];
 
 export default function ToolsPage() {
@@ -73,7 +73,7 @@ export default function ToolsPage() {
   const borderColor = useThemeColor({}, 'border');
 
   const handleToolPress = (tool) => {
-    if (tool.id === 'code-tutor' || tool.id === 'step-by-step' || tool.id === 'project-learning' || tool.id === 'text-summarizer') {
+    if (tool.id === 'code-tutor' || tool.id === 'step-by-step' || tool.id === 'project-learning' || tool.id === 'text-summarizer' || tool.id === 'quiz-me' || tool.id === 'teacher-prep') {
       router.push(tool.route);
     } else {
       // Other tools - coming soon

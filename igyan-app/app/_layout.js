@@ -71,7 +71,11 @@ function RootLayoutContent() {
           <Stack.Screen name="shark-ai" options={{ title: 'Shark AI', headerShown: false }} />
           <Stack.Screen name="quiz-me" options={{ title: 'Quiz Me', headerShown: false }} />
           <Stack.Screen name="teacher-prep" options={{ title: 'Teacher Prep', headerShown: false }} />
-          <Stack.Screen name="tools" options={{ headerShown: false }} />
+          <Stack.Screen name="tools/index" options={{ headerShown: false }} />
+          <Stack.Screen name="tools/code-tutor" options={{ headerShown: false }} />
+          <Stack.Screen name="tools/project-learning" options={{ headerShown: false }} />
+          <Stack.Screen name="tools/step-by-step" options={{ headerShown: false }} />
+          <Stack.Screen name="tools/text-summarizer" options={{ headerShown: false }} />
         </Stack>
         <SideNavbar isOpen={isOpen} onClose={closeSideNav} />
         <StatusBar style="light" />

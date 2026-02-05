@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { IconSymbol } from '../../components';
-import { useSideNav } from '../../components/SideNavbar';
 import Svg, { Circle } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -460,7 +459,6 @@ const QuizResults = ({ quiz, userAnswers, score, onRestartQuiz, onReviewAnswers 
 // Main Quiz Me Page
 export default function QuizMePage() {
   const router = useRouter();
-  const { openDrawer } = useSideNav();
   
   const [formData, setFormData] = useState({
     topic: '',
@@ -611,13 +609,11 @@ Provide ONLY valid JSON, no additional commentary.`;
     <View style={styles.container}>
       {/* Top Bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.menuButton} onPress={openDrawer}>
-          <IconSymbol name="line.3.horizontal" size={24} color="#fff" />
+        <TouchableOpacity style={styles.menuButton} onPress={() => router.back()}>
+          <IconSymbol name="chevron.left" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>Quiz Me</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <IconSymbol name="xmark" size={20} color="#fff" />
-        </TouchableOpacity>
+        <View style={styles.backButton} />
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
