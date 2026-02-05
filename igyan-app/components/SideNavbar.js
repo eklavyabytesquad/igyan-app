@@ -29,8 +29,12 @@ const navItems = [
   { id: 'courses', label: 'My Courses', icon: 'book.fill', route: '/(tabs)/courses' },
   { id: 'explore', label: 'Explore', icon: 'magnifyingglass', route: '/(tabs)/explore' },
   { id: 'live', label: 'Live Classroom', icon: 'video.fill', route: '/live-classroom' },
+  { id: 'attendance', label: 'Attendance', icon: 'checklist', route: '/attendance' },
   { id: 'viva-ai', label: 'Viva AI', icon: 'sparkles', route: '/viva-ai' },
+  { id: 'shark-ai', label: 'Shark AI', icon: 'chart.line.uptrend.xyaxis', route: '/shark-ai' },
+  { id: 'quiz-me', label: 'Quiz Me', icon: 'questionmark.circle.fill', route: '/quiz-me' },
   { id: 'content-gen', label: 'Content Generator', icon: 'doc.richtext.fill', route: '/content-generator' },
+  { id: 'incubation', label: 'Incubation Hub', icon: 'building.2.fill', route: '/incubation-hub' },
   { id: 'tools', label: 'AI Tools', icon: 'cpu', route: '/tools' },
 ];
 

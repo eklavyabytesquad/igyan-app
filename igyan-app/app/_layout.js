@@ -66,6 +66,10 @@ function RootLayoutContent() {
           <Stack.Screen name="live-classroom" options={{ title: 'Live Classroom', headerShown: false }} />
           <Stack.Screen name="viva-ai" options={{ title: 'Viva AI', headerShown: false }} />
           <Stack.Screen name="content-generator" options={{ title: 'Content Generator', headerShown: false }} />
+          <Stack.Screen name="attendance" options={{ title: 'Attendance', headerShown: false }} />
+          <Stack.Screen name="incubation-hub" options={{ title: 'Incubation Hub', headerShown: false }} />
+          <Stack.Screen name="shark-ai" options={{ title: 'Shark AI', headerShown: false }} />
+          <Stack.Screen name="quiz-me" options={{ title: 'Quiz Me', headerShown: false }} />
           <Stack.Screen name="tools" options={{ headerShown: false }} />
         </Stack>
         <SideNavbar isOpen={isOpen} onClose={closeSideNav} />
