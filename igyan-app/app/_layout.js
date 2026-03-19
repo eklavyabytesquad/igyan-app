@@ -76,6 +76,8 @@ function RootLayoutContent() {
           <Stack.Screen name="tools/project-learning" options={{ headerShown: false }} />
           <Stack.Screen name="tools/step-by-step" options={{ headerShown: false }} />
           <Stack.Screen name="tools/text-summarizer" options={{ headerShown: false }} />
+          <Stack.Screen name="daily-calendar" options={{ title: 'Manage Timetable', headerShown: false }} />
+          <Stack.Screen name="daily-timetable" options={{ title: 'Daily Timetable', headerShown: false }} />
         </Stack>
         <SideNavbar isOpen={isOpen} onClose={closeSideNav} />
         <StatusBar style="light" />
@@ -99,5 +101,6 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'relative',
   },
 });

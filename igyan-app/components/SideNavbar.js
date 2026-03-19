@@ -1,6 +1,6 @@
 /**
  * iGyan App - Side Navigation Bar Component
- * Professional side drawer navigation with smooth animations
+ * Minimalist side drawer with clean animations
  */
 
 import React, { useEffect, useRef } from 'react';
@@ -13,16 +13,16 @@ import {
   Dimensions,
   Image,
   Platform,
+  ScrollView,
   TouchableWithoutFeedback,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSymbol } from './IconSymbol';
 import { useAuth } from '../utils/AuthContext';
-import { Colors, Spacing, FontSizes } from '../constants/theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const DRAWER_WIDTH = Math.min(280, SCREEN_WIDTH * 0.78);
+const DRAWER_WIDTH = Math.min(290, SCREEN_WIDTH * 0.8);
 
 const navItems = [
   { id: 'home', label: 'Home', icon: 'house.fill', route: '/(tabs)/home' },
@@ -35,6 +35,8 @@ const navItems = [
   { id: 'content-gen', label: 'Content Generator', icon: 'doc.richtext.fill', route: '/content-generator' },
   { id: 'incubation', label: 'Incubation Hub', icon: 'building.2.fill', route: '/incubation-hub' },
   { id: 'tools', label: 'AI Tools', icon: 'cpu', route: '/tools/index' },
+  { id: 'daily-calendar', label: 'Manage Timetable', icon: 'calendar', route: '/daily-calendar' },
+  { id: 'daily-timetable', label: 'Daily Timetable', icon: 'clock.fill', route: '/daily-timetable' },
 ];
 
 const bottomNavItems = [
@@ -51,14 +53,15 @@ export default function SideNavbar({ isOpen, onClose }) {
   useEffect(() => {
     if (isOpen) {
       Animated.parallel([
-        Animated.timing(slideAnim, {
+        Animated.spring(slideAnim, {
           toValue: 0,
-          duration: 280,
+          damping: 20,
+          stiffness: 200,
           useNativeDriver: true,
         }),
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 280,
+          duration: 250,
           useNativeDriver: true,
         }),
       ]).start();
@@ -66,12 +69,12 @@ export default function SideNavbar({ isOpen, onClose }) {
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: -DRAWER_WIDTH,
-          duration: 250,
+          duration: 220,
           useNativeDriver: true,
         }),
         Animated.timing(fadeAnim, {
           toValue: 0,
-          duration: 250,
+          duration: 220,
           useNativeDriver: true,
         }),
       ]).start();
@@ -120,7 +123,7 @@ export default function SideNavbar({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <View style={[styles.container, { height: SCREEN_HEIGHT }]}>
+    <View style={[styles.overlay, { paddingTop: 0 }]} pointerEvents="box-none">
       {/* Backdrop */}
       <TouchableWithoutFeedback onPress={onClose}>
         <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]} />
@@ -132,14 +135,21 @@ export default function SideNavbar({ isOpen, onClose }) {
           styles.drawer,
           {
             transform: [{ translateX: slideAnim }],
-            paddingTop: insets.top,
+            paddingTop: insets.top + 8,
             paddingBottom: insets.bottom,
           },
         ]}
       >
-        {/* Header / Profile Section */}
+        {/* Header */}
         <View style={styles.header}>
-          <View style={styles.profileContainer}>
+          <View style={styles.headerTop}>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.7}>
+              <IconSymbol name="xmark" size={18} color="#94a3b8" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Profile */}
+          <View style={styles.profileSection}>
             <View style={styles.avatarContainer}>
               {user?.avatar_url ? (
                 <Image source={{ uri: user.avatar_url }} style={styles.avatar} />
@@ -148,80 +158,62 @@ export default function SideNavbar({ isOpen, onClose }) {
                   <Text style={styles.avatarText}>{getUserInitials()}</Text>
                 </View>
               )}
-              <View style={styles.onlineIndicator} />
             </View>
-            <View style={styles.userInfo}>
-              <Text style={styles.userName} numberOfLines={1}>
-                {user?.full_name || 'Guest User'}
-              </Text>
-              <Text style={styles.userRole}>{getUserRole()}</Text>
-            </View>
+            <Text style={styles.userName} numberOfLines={1}>
+              {user?.full_name || 'Guest User'}
+            </Text>
+            <Text style={styles.userRole}>{getUserRole()}</Text>
           </View>
-          
-          {/* Close Button */}
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <IconSymbol name="xmark" size={20} color="#f8fafc" />
-          </TouchableOpacity>
         </View>
 
-        {/* Divider */}
-        <View style={styles.divider} />
-
-        {/* Navigation Items */}
-        <View style={styles.navSection}>
-          {navItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.navItem}
-              onPress={() => handleNavigation(item.route)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.navIconContainer}>
-                <IconSymbol name={item.icon} size={18} color="#00abf4" />
-              </View>
-              <Text style={styles.navLabel}>{item.label}</Text>
-              <IconSymbol name="chevron.right" size={14} color="#7a8b9c" />
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Spacer */}
-        <View style={styles.spacer} />
+        {/* Navigation Items - Scrollable */}
+        <ScrollView
+          style={styles.navScroll}
+          contentContainerStyle={styles.navScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.navSection}>
+            {navItems.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.navItem}
+                onPress={() => handleNavigation(item.route)}
+                activeOpacity={0.6}
+              >
+                <IconSymbol name={item.icon} size={18} color="#64748b" />
+                <Text style={styles.navLabel}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
 
         {/* Bottom Section */}
         <View style={styles.bottomSection}>
-          <View style={styles.divider} />
+          <View style={styles.bottomDivider} />
           
           {bottomNavItems.map((item) => (
             <TouchableOpacity
               key={item.id}
               style={styles.navItem}
               onPress={() => handleNavigation(item.route)}
-              activeOpacity={0.7}
+              activeOpacity={0.6}
             >
-              <View style={styles.navIconContainer}>
-                <IconSymbol name={item.icon} size={18} color="#7a8b9c" />
-              </View>
-              <Text style={[styles.navLabel, { color: '#a0aab4' }]}>{item.label}</Text>
-              <IconSymbol name="chevron.right" size={14} color="#7a8b9c" />
+              <IconSymbol name={item.icon} size={18} color="#64748b" />
+              <Text style={styles.navLabel}>{item.label}</Text>
             </TouchableOpacity>
           ))}
 
-          {/* Logout Button */}
+          {/* Logout */}
           <TouchableOpacity
             style={[styles.navItem, styles.logoutItem]}
             onPress={handleLogout}
-            activeOpacity={0.7}
+            activeOpacity={0.6}
           >
-            <View style={[styles.navIconContainer, styles.logoutIconContainer]}>
-              <IconSymbol name="rectangle.portrait.and.arrow.right" size={18} color="#ef4444" />
-            </View>
+            <IconSymbol name="rectangle.portrait.and.arrow.right" size={18} color="#ef4444" />
             <Text style={[styles.navLabel, styles.logoutLabel]}>Sign Out</Text>
           </TouchableOpacity>
-        </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
+          {/* Footer */}
           <Text style={styles.footerText}>iGyan v1.0.0</Text>
         </View>
       </Animated.View>
@@ -230,18 +222,14 @@ export default function SideNavbar({ isOpen, onClose }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1000,
-    elevation: 1000,
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 9999,
+    elevation: 9999,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   drawer: {
     position: 'absolute',
@@ -249,155 +237,121 @@ const styles = StyleSheet.create({
     left: 0,
     width: DRAWER_WIDTH,
     height: '100%',
-    backgroundColor: '#0a2434',
+    backgroundColor: '#0f172a',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 2, height: 0 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
+        shadowOffset: { width: 4, height: 0 },
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
       },
       android: {
-        elevation: 16,
+        elevation: 24,
       },
     }),
   },
   header: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  headerTop: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 14,
-    backgroundColor: '#135167',
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 20,
+    justifyContent: 'flex-end',
+    marginBottom: 16,
   },
-  profileContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  avatarContainer: {
-    position: 'relative',
-  },
-  avatar: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 2,
-    borderColor: '#00abf4',
-  },
-  avatarPlaceholder: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: '#00abf4',
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  profileSection: {
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    marginBottom: 12,
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     borderWidth: 2,
-    borderColor: '#f8fafc',
+    borderColor: '#1e293b',
+  },
+  avatarPlaceholder: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#1e40af',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatarText: {
-    fontSize: 17,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '600',
     color: '#ffffff',
-  },
-  onlineIndicator: {
-    position: 'absolute',
-    bottom: 1,
-    right: 1,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#22c55e',
-    borderWidth: 2,
-    borderColor: '#135167',
-  },
-  userInfo: {
-    marginLeft: 12,
-    flex: 1,
+    letterSpacing: 0.5,
   },
   userName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#f8fafc',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#f1f5f9',
     marginBottom: 2,
   },
   userRole: {
-    fontSize: 11,
-    color: '#00abf4',
-    fontWeight: '500',
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '400',
   },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
+  navScroll: {
+    flex: 1,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#135167',
-    marginHorizontal: 14,
-    marginVertical: 6,
+  navScrollContent: {
+    paddingTop: 4,
   },
   navSection: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
   },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 11,
-    paddingHorizontal: 10,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
     borderRadius: 10,
     marginVertical: 1,
-  },
-  navIconContainer: {
-    width: 34,
-    height: 34,
-    borderRadius: 8,
-    backgroundColor: 'rgba(0, 171, 244, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+    gap: 14,
   },
   navLabel: {
     flex: 1,
     fontSize: 14,
-    fontWeight: '500',
-    color: '#f8fafc',
-  },
-  spacer: {
-    flex: 1,
+    fontWeight: '400',
+    color: '#cbd5e1',
+    letterSpacing: 0.1,
   },
   bottomSection: {
-    paddingHorizontal: 10,
-    paddingBottom: 6,
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+  },
+  bottomDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: '#1e293b',
+    marginHorizontal: 16,
+    marginBottom: 8,
   },
   logoutItem: {
-    marginTop: 6,
-    backgroundColor: 'rgba(239, 68, 68, 0.08)',
-  },
-  logoutIconContainer: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    marginTop: 4,
   },
   logoutLabel: {
     color: '#ef4444',
-    fontWeight: '600',
-  },
-  footer: {
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#135167',
-    marginHorizontal: 14,
+    fontWeight: '500',
   },
   footerText: {
     fontSize: 11,
-    color: '#7a8b9c',
+    color: '#334155',
+    textAlign: 'center',
+    marginTop: 12,
+    letterSpacing: 0.5,
   },
 });
