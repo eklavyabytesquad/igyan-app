@@ -14,7 +14,7 @@ import { homeStyles } from '../../styles/pages/homeStyles';
 import { useAuth } from '../../utils/AuthContext';
 import { supabase } from '../../utils/supabase';
 
-const INSTITUTIONAL_ROLES = ['super_admin', 'co_admin', 'student', 'faculty'];
+const INSTITUTIONAL_ROLES = ['super_admin', 'co_admin', 'student', 'faculty', 'parent'];
 
 export default function HomePage() {
   const cardColor = useThemeColor({}, 'card');
@@ -22,10 +22,14 @@ export default function HomePage() {
   const { user } = useAuth();
   
   const [schoolData, setSchoolData] = useState(null);
+  const [children, setChildren] = useState([]);
 
   useEffect(() => {
     if (user && user.school_id && INSTITUTIONAL_ROLES.includes(user.role)) {
       fetchSchoolData();
+    }
+    if (user && user.role === 'parent') {
+      fetchChildren();
     }
   }, [user]);
 
@@ -43,6 +47,16 @@ export default function HomePage() {
     } catch (error) {
       console.error('Error fetching school data:', error);
     }
+  };
+
+  const fetchChildren = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('parent_student_assignments')
+        .select('id, relationship, is_primary, student:users!psa_student_fkey(id, full_name, email)')
+        .eq('parent_id', user.id);
+      if (!error && data) setChildren(data);
+    } catch (e) { console.error('Error fetching children:', e); }
   };
 
   return (
@@ -64,6 +78,33 @@ export default function HomePage() {
             Welcome back, {user?.full_name?.split(' ')[0] || 'there'}!
           </ThemedText>
         </View>
+
+        {/* Parent — My Children */}
+        {user?.role === 'parent' && children.length > 0 && (
+          <View style={{ backgroundColor: '#1e293b', borderRadius: 14, padding: 16, marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 8 }}>
+              <IconSymbol name="person.2.fill" size={18} color="#3b82f6" />
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#e2e8f0' }}>My Children</Text>
+              <View style={{ backgroundColor: '#3b82f620', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, marginLeft: 'auto' }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#3b82f6' }}>{children.length}</Text>
+              </View>
+            </View>
+            {children.map(c => (
+              <View key={c.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#334155', gap: 10 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#3b82f6', alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#fff' }}>{(c.student?.full_name || '?')[0].toUpperCase()}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#e2e8f0' }}>{c.student?.full_name || 'Unknown'}</Text>
+                  <Text style={{ fontSize: 12, color: '#64748b', marginTop: 1 }}>{c.relationship || 'Parent'}{c.is_primary ? ' · Primary' : ''}</Text>
+                </View>
+                <TouchableOpacity onPress={() => router.push('/chat')} style={{ paddingHorizontal: 10, paddingVertical: 5, backgroundColor: '#3b82f615', borderRadius: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: '#3b82f6' }}>Message</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
 
         {/* Featured Banner */}
         <View style={homeStyles.featuredCard}>

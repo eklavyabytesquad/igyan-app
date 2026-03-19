@@ -3,7 +3,7 @@
  * Minimalist side drawer with clean animations
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSymbol } from './IconSymbol';
 import { useAuth } from '../utils/AuthContext';
+import { supabase } from '../utils/supabase';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(290, SCREEN_WIDTH * 0.8);
@@ -37,6 +38,17 @@ const navItems = [
   { id: 'tools', label: 'AI Tools', icon: 'cpu', route: '/tools/index' },
   { id: 'daily-calendar', label: 'Manage Timetable', icon: 'calendar', route: '/daily-calendar' },
   { id: 'daily-timetable', label: 'Daily Timetable', icon: 'clock.fill', route: '/daily-timetable' },
+  // "Manage School" is handled as an expandable group below
+  // "Messages" is conditionally added for parent/faculty below
+];
+
+const schoolSubItems = [
+  { id: 'manage-users', label: 'Manage Users', icon: 'person.2.fill', route: '/manage-users' },
+  { id: 'manage-subjects', label: 'Manage Subjects', icon: 'books.vertical.fill', route: '/manage-subjects' },
+  { id: 'manage-classes', label: 'Manage Classes', icon: 'rectangle.stack.fill', route: '/manage-classes' },
+  { id: 'manage-students', label: 'Manage Students', icon: 'person.3.fill', route: '/manage-students' },
+  { id: 'manage-class-subjects', label: 'Assign Subjects', icon: 'link', route: '/manage-class-subjects' },
+  { id: 'manage-faculty', label: 'Manage Faculty', icon: 'person.text.rectangle', route: '/manage-faculty' },
 ];
 
 const bottomNavItems = [
@@ -46,7 +58,42 @@ const bottomNavItems = [
 export default function SideNavbar({ isOpen, onClose }) {
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
-  
+  const [schoolExpanded, setSchoolExpanded] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+
+  useEffect(() => {
+    if (user?.role === 'parent') {
+      setShowChat(true);
+    } else if (user?.role === 'faculty' && user?.id) {
+      (async () => {
+        try {
+          // Try matching by user_id first, then fallback to email
+          let { data, error } = await supabase
+            .from('faculty_profiles')
+            .select('is_class_teacher')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (!data && user.email) {
+            ({ data, error } = await supabase
+              .from('faculty_profiles')
+              .select('is_class_teacher')
+              .eq('email', user.email)
+              .maybeSingle());
+          }
+
+          console.log('Faculty profile check:', { data, error, userId: user.id, email: user.email });
+          setShowChat(data?.is_class_teacher === true);
+        } catch (e) {
+          console.error('Faculty profile error:', e);
+          setShowChat(false);
+        }
+      })();
+    } else {
+      setShowChat(false);
+    }
+  }, [user?.id, user?.role]);
+
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -182,6 +229,40 @@ export default function SideNavbar({ isOpen, onClose }) {
               >
                 <IconSymbol name={item.icon} size={18} color="#64748b" />
                 <Text style={styles.navLabel}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+
+            {/* Chat - visible for parent & faculty */}
+            {showChat && (
+              <TouchableOpacity
+                style={styles.navItem}
+                onPress={() => handleNavigation('/chat')}
+                activeOpacity={0.6}
+              >
+                <IconSymbol name="envelope.fill" size={18} color="#64748b" />
+                <Text style={styles.navLabel}>Messages</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Expandable Manage School group */}
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => setSchoolExpanded(prev => !prev)}
+              activeOpacity={0.6}
+            >
+              <IconSymbol name="gearshape.fill" size={18} color="#64748b" />
+              <Text style={styles.navLabel}>Manage School</Text>
+              <IconSymbol name={schoolExpanded ? 'chevron.up' : 'chevron.down'} size={12} color="#475569" />
+            </TouchableOpacity>
+            {schoolExpanded && schoolSubItems.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={[styles.navItem, styles.subNavItem]}
+                onPress={() => handleNavigation(item.route)}
+                activeOpacity={0.6}
+              >
+                <IconSymbol name={item.icon} size={15} color="#475569" />
+                <Text style={[styles.navLabel, styles.subNavLabel]}>{item.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -329,6 +410,14 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: '#cbd5e1',
     letterSpacing: 0.1,
+  },
+  subNavItem: {
+    paddingLeft: 48,
+    paddingVertical: 10,
+  },
+  subNavLabel: {
+    fontSize: 13,
+    color: '#94a3b8',
   },
   bottomSection: {
     paddingHorizontal: 12,

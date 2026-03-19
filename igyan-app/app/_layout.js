@@ -78,6 +78,15 @@ function RootLayoutContent() {
           <Stack.Screen name="tools/text-summarizer" options={{ headerShown: false }} />
           <Stack.Screen name="daily-calendar" options={{ title: 'Manage Timetable', headerShown: false }} />
           <Stack.Screen name="daily-timetable" options={{ title: 'Daily Timetable', headerShown: false }} />
+          <Stack.Screen name="school-management" options={{ title: 'Manage School', headerShown: false }} />
+          <Stack.Screen name="manage-subjects" options={{ title: 'Manage Subjects', headerShown: false }} />
+          <Stack.Screen name="manage-classes" options={{ title: 'Manage Classes', headerShown: false }} />
+          <Stack.Screen name="manage-students" options={{ title: 'Manage Students', headerShown: false }} />
+          <Stack.Screen name="manage-class-subjects" options={{ title: 'Assign Subjects', headerShown: false }} />
+          <Stack.Screen name="manage-faculty" options={{ title: 'Manage Faculty', headerShown: false }} />
+          <Stack.Screen name="manage-users" options={{ title: 'Manage Users', headerShown: false }} />
+          <Stack.Screen name="chat" options={{ title: 'Messages', headerShown: false }} />
+          <Stack.Screen name="chat-conversation" options={{ title: 'Chat', headerShown: false }} />
         </Stack>
         <SideNavbar isOpen={isOpen} onClose={closeSideNav} />
         <StatusBar style="light" />

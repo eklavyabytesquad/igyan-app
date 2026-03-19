@@ -11,7 +11,7 @@ import { hashPassword, generateToken, getDeviceInfo, getUserIP } from './crypto'
 const AuthContext = createContext();
 
 // Role definitions
-const INSTITUTIONAL_ROLES = ['super_admin', 'co_admin', 'student', 'faculty'];
+const INSTITUTIONAL_ROLES = ['super_admin', 'co_admin', 'student', 'faculty', 'parent'];
 const PROFESSIONAL_ROLES = ['b2c_student', 'b2c_mentor'];
 
 export function AuthProvider({ children }) {
