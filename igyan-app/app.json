@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "iGyan - Learn & Grow",
-    "slug": "igyan-app",
-    "version": "1.0.0",
+    "slug": "igyanai",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "igyanapp",
@@ -62,8 +62,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "1f50e249-9eb4-4dce-8681-7efc28b393f2"
+        "projectId": "5ef59cf8-df5f-4805-9ec3-54a9a829dea4"
       }
-    }
+    },
+    "owner": "igyanais-organization"
   }
 }
